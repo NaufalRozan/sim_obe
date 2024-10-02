@@ -15,6 +15,8 @@ class Cpl extends Model
     protected $fillable = [
         'nama_cpl',
         'kurikulum_id',
+        'cpl_ke',
+        'deskripsi'
 
     ];
 

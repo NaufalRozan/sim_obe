@@ -9,6 +9,7 @@ use App\Models\Kurikulum;
 use App\Models\Prodi;
 use Filament\Forms;
 use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -40,24 +41,58 @@ class CplResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('nama_cpl')
-                    ->label('Nama CPL')
-                    ->required(),
-                //dropdown hanya menampilkan kurikulum yang berelasi dengan prodi user_prodi
-                Forms\Components\Select::make('kurikulum_id')
-                    ->label('Kurikulum')
-                    ->options(function () {
-                        // Mendapatkan user yang sedang login
-                        $user = Auth::user();
+                Section::make()->schema([
+                    Select::make('prodi_id')
+                        ->label('Program Studi')
+                        ->placeholder('Pilih Program Studi')
 
-                        // Mendapatkan semua kurikulum yang berelasi dengan prodi user dan mengembalikan key-value pair yang benar
-                        return $user->prodis->mapWithKeys(function ($prodi) {
-                            return $prodi->kurikulums->pluck('nama_kurikulum', 'id');
-                        })->toArray();  // Menghasilkan array dengan 'id' sebagai key dan 'nama_kurikulum' sebagai value
-                    })
-                    ->required()
-                    ->placeholder('Pilih Kurikulum')
-            ]);
+                        ->options(function () {
+                            $user = Auth::user();
+                            return $user->prodis->pluck('nama_prodi', 'id')->toArray();
+                        })
+                        ->afterStateUpdated(function ($state, callable $get, callable $set) {
+                            $prodi = Prodi::find($state);
+
+                            if ($prodi) {
+                                $kurikulumId = (int) $get('kurikulum_id');
+
+                                if ($kurikulumId && $kurikulum = Kurikulum::find($kurikulumId)) {
+                                    // Jika kurikulum yang dipilih tidak sesuai dengan prodi, reset kurikulum
+                                    if ($kurikulum->prodi_id !== $prodi->id) {
+                                        $set('kurikulum_id', null);
+                                    }
+                                }
+                            }
+                        })
+                        ->reactive(),
+                    // Dropdown untuk memilih Kurikulum
+                    Select::make('kurikulum_id')
+                        ->label('Kurikulum')
+                        ->placeholder('Pilih Kurikulum')
+                        ->options(function (callable $get) {
+                            $prodi = Prodi::find($get('prodi_id'));
+
+                            if ($prodi) {
+                                // Jika prodi dipilih, ambil kurikulum yang sesuai dengan prodi
+                                return $prodi->kurikulums->pluck('nama_kurikulum', 'id');
+                            }
+
+                            // Jika tidak ada prodi yang dipilih, tampilkan semua kurikulum
+                            return Kurikulum::all()->pluck('nama_kurikulum', 'id');
+                        })
+                        ->reactive(),
+                    Forms\Components\TextInput::make('nama_cpl')
+                        ->label('Kode')
+                        ->required(),
+                    Forms\Components\TextInput::make('cpl_ke')
+                        ->label('CPL Ke')
+                        ->required(),
+                    Forms\Components\Textarea::make('deskripsi')
+                        ->label('Deskripsi')
+                        ->required()
+                        ->columnSpanFull()
+                ])->Columns(2)
+            ])->Columns(2);
     }
 
     public static function table(Table $table): Table
@@ -66,26 +101,29 @@ class CplResource extends Resource
             ->columns([
                 // menampilkan CPL hanya yang berelasi dengan kurikulum user
                 Tables\Columns\TextColumn::make('nama_cpl')
-                    ->label('Nama CPL')
+                    ->label('Kode')
                     ->searchable(),
+                Tables\Columns\TextColumn::make('kurikulum.prodi.nama_prodi')
+                    ->label('Prodi'),
                 Tables\Columns\TextColumn::make('kurikulum.nama_kurikulum')
                     ->label('Kurikulum'),
-                Tables\Columns\TextColumn::make('kurikulum.prodi.nama_prodi')
-                    ->label('Prodi')
-
-
+                Tables\Columns\TextColumn::make('cpl_ke')
+                    ->label('CPL Ke'),
+                Tables\Columns\TextColumn::make('deskripsi')
+                    ->label('Deskripsi'),
             ])
             ->filters([
                 // Filter kurikulum dengan form custom
                 SelectFilter::make('kurikulum')
                     ->label('Kurikulum')
                     ->form([
-                        Grid::make(1) // Membuat grid dengan 1 kolom (full width)
+                        Grid::make(2) // Membuat grid dengan 1 kolom (full width)
                             ->schema(
                                 [
                                     // Dropdown untuk memilih Program Studi
                                     Select::make('prodi_id')
                                         ->label('Program Studi')
+                                        ->placeholder('Pilih Program Studi')
                                         // Mendapatkan user yang sedang login
                                         ->options(function () {
                                             $user = Auth::user();
@@ -110,6 +148,7 @@ class CplResource extends Resource
                                     // Dropdown untuk memilih Kurikulum
                                     Select::make('kurikulum_id')
                                         ->label('Kurikulum')
+                                        ->placeholder('Pilih Kurikulum')
                                         ->options(function (callable $get) {
                                             $prodi = Prodi::find($get('prodi_id'));
 
@@ -124,7 +163,7 @@ class CplResource extends Resource
                                         ->reactive(),
                                 ]
                             ),
-                    ])
+                    ])->columnSpanFull()
                     // Query for filtering the data based on the selected prodi and kurikulum
                     ->query(function (Builder $query, array $data) {
                         // If neither prodi_id nor kurikulum_id is set, return no data (empty result)
@@ -145,16 +184,12 @@ class CplResource extends Resource
                         }
                     }),
             ], FiltersLayout::AboveContent)
-
-
-
             ->actions([
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
+                //
             ]);
     }
 
