@@ -17,7 +17,6 @@ class Mk extends Model
         'kurikulum_id',
         'semester',
         'nama_mk',
-        'bobot'
     ];
 
     // Relasi many-to-many dengan model CPL melalui tabel pivot cpl_mk

@@ -113,19 +113,16 @@ class MkResource extends Resource
                         ->required(),
 
                     //semester
-                    Forms\Components\TextInput::make('semester'),
+                    Forms\Components\TextInput::make('semester')
+                        ->required(),
                     //kode
-                    Forms\Components\TextInput::make('kode'),
+                    Forms\Components\TextInput::make('kode')
+                        ->required(),
 
                     //nama_mk
-                    Forms\Components\TextInput::make('nama_mk'),
-                    //bobot
-                    TextInput::make('bobot')
-                        ->label('Bobot')
-                        ->type('number')
-                        ->step('0.01')
+                    Forms\Components\TextInput::make('nama_mk')
                         ->required(),
-                ])
+                ]),
             ]);
     }
 
@@ -143,9 +140,6 @@ class MkResource extends Resource
                 TextColumn::make('nama_mk')
                     ->label('Mata Kuliah')
                     ->searchable(),
-                //bobot
-                TextColumn::make('bobot')
-                    ->label('Bobot'),
             ])
             ->filters([
                 // Filter kurikulum dengan form custom

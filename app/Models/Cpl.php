@@ -16,8 +16,7 @@ class Cpl extends Model
         'nama_cpl',
         'kurikulum_id',
         'cpl_ke',
-        'deskripsi'
-
+        'deskripsi',
     ];
 
     public function kurikulum()
