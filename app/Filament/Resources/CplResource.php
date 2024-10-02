@@ -117,7 +117,7 @@ class CplResource extends Resource
                 SelectFilter::make('kurikulum')
                     ->label('Kurikulum')
                     ->form([
-                        Grid::make(2) // Membuat grid dengan 1 kolom (full width)
+                        Grid::make(2) // Membuat grid dengan 2 kolom
                             ->schema(
                                 [
                                     // Dropdown untuk memilih Program Studi
@@ -157,8 +157,12 @@ class CplResource extends Resource
                                                 return $prodi->kurikulums->pluck('nama_kurikulum', 'id');
                                             }
 
-                                            // Jika tidak ada prodi yang dipilih, tampilkan semua kurikulum
-                                            return Kurikulum::all()->pluck('nama_kurikulum', 'id');
+                                            // Jika tidak ada prodi yang dipilih, kosongkan pilihan kurikulum
+                                            return [];
+                                        })
+                                        ->disabled(function (callable $get) {
+                                            // Disable dropdown jika Prodi belum dipilih
+                                            return is_null($get('prodi_id'));
                                         })
                                         ->reactive(),
                                 ]

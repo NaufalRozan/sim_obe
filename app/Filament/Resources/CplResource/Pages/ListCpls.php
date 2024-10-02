@@ -19,7 +19,6 @@ class ListCpls extends ListRecords
         ];
     }
 
-    //hanya menampilkan cpl yang berelasi dengan kurikulum prodi user
     protected function getTableQuery(): Builder
     {
         // Mendapatkan prodi_id dari user yang login
@@ -29,6 +28,10 @@ class ListCpls extends ListRecords
         })->toArray();
 
         // Hanya menampilkan data cpl sesuai dengan kurikulum user
-        return parent::getTableQuery()->whereIn('kurikulum_id', $kurikulumIds);
+        return parent::getTableQuery()
+            ->whereIn('kurikulum_id', $kurikulumIds)
+            ->whereHas('kurikulum.prodi', function ($query) use ($user) {
+                $query->whereIn('id', $user->prodis->pluck('id')->toArray());
+            });
     }
 }
