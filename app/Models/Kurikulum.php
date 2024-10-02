@@ -25,4 +25,10 @@ class Kurikulum extends Model
     {
         return $this->hasMany(Cpl::class, 'kurikulum_id');
     }
+
+    // Relasi One-to-Many dengan MK
+    public function mks()
+    {
+        return $this->hasMany(Mk::class, 'kurikulum_id');
+    }
 }
