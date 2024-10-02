@@ -24,4 +24,10 @@ class Cpl extends Model
     {
         return $this->belongsTo(Kurikulum::class, 'kurikulum_id');
     }
+
+    // Relasi many-to-many dengan model MK melalui tabel pivot cpl_mk
+    public function mks()
+    {
+        return $this->belongsToMany(Mk::class, 'cpl_mk', 'cpl_id', 'mk_id');
+    }
 }

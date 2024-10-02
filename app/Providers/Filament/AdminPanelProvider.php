@@ -61,7 +61,7 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->navigationGroups([
                 NavigationGroup::make()
-                    ->label('Management')
+                    ->label('CPL')
                     ->collapsible(false)
             ]);
     }
