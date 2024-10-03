@@ -51,6 +51,17 @@ class CplV2Resource extends Resource
                     ->label('Nama Mata Kuliah')
                     ->required()
                     ->placeholder('Masukkan Nama Mata Kuliah'),
+                // Menampilkan seluruh CPL terkait dalam form
+                Grid::make(1)
+                    ->schema(
+                        Mk::with('cpls')->first()?->cpls->map(function ($cpl, $index) {
+                            return TextInput::make('bobot')
+                                ->label('CPL ' . ($index + 1) . ' - ' . $cpl->nama_cpl)
+                                ->numeric()
+                                ->required()
+                                ->default($cpl->pivot->bobot);
+                        })->toArray() ?? []
+                    )
             ]);
     }
 
@@ -151,8 +162,8 @@ class CplV2Resource extends Resource
                     }),
             ], FiltersLayout::AboveContent)
             ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                // Tables\Actions\EditAction::make(),
+                // Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 //
