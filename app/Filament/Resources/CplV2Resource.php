@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\CplV2Resource\Pages;
 use App\Filament\Resources\CplV2Resource\RelationManagers;
+use App\Filament\Resources\CplV2Resource\RelationManagers\CplsRelationManager;
 use App\Models\Kurikulum;
 use App\Models\Mk;
 use App\Models\Prodi;
@@ -14,6 +15,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Actions\AttachAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Enums\FiltersLayout;
 use Filament\Tables\Filters\SelectFilter;
@@ -44,24 +46,15 @@ class CplV2Resource extends Resource
                 TextInput::make('kode')
                     ->label('Kode')
                     ->required()
+                    ->disabled()
                     ->placeholder('Masukkan Kode Mata Kuliah'),
 
                 // nama_mk
                 TextInput::make('nama_mk')
                     ->label('Nama Mata Kuliah')
                     ->required()
+                    ->disabled()
                     ->placeholder('Masukkan Nama Mata Kuliah'),
-                // Menampilkan seluruh CPL terkait dalam form
-                Grid::make(1)
-                    ->schema(
-                        Mk::with('cpls')->first()?->cpls->map(function ($cpl, $index) {
-                            return TextInput::make('bobot')
-                                ->label('CPL ' . ($index + 1) . ' - ' . $cpl->nama_cpl)
-                                ->numeric()
-                                ->required()
-                                ->default($cpl->pivot->bobot);
-                        })->toArray() ?? []
-                    )
             ]);
     }
 
@@ -173,7 +166,7 @@ class CplV2Resource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            CplsRelationManager::class,
         ];
     }
 
@@ -181,7 +174,7 @@ class CplV2Resource extends Resource
     {
         return [
             'index' => Pages\ListCplV2S::route('/'),
-            'create' => Pages\CreateCplV2::route('/create'),
+            // 'create' => Pages\CreateCplV2::route('/create'),
             'edit' => Pages\EditCplV2::route('/{record}/edit'),
         ];
     }
