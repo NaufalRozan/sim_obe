@@ -11,6 +11,7 @@ use Filament\Forms;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
@@ -24,6 +25,8 @@ use Illuminate\Support\Facades\Auth;
 class CplResource extends Resource
 {
     protected static ?string $model = Cpl::class;
+
+    protected static ?string $title = 'Finance dashboard';
 
     protected static ?string $navigationLabel = 'CPL';
 
@@ -80,6 +83,7 @@ class CplResource extends Resource
                             // Jika tidak ada prodi yang dipilih, tampilkan semua kurikulum
                             return Kurikulum::all()->pluck('nama_kurikulum', 'id');
                         })
+                        ->required()
                         ->reactive(),
                     Forms\Components\TextInput::make('nama_cpl')
                         ->label('Kode')
@@ -104,7 +108,7 @@ class CplResource extends Resource
                     ->label('Kode')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('kurikulum.prodi.nama_prodi')
-                    ->label('Prodi'),
+                    ->label('Program Studi'),
                 Tables\Columns\TextColumn::make('kurikulum.nama_kurikulum')
                     ->label('Kurikulum'),
                 Tables\Columns\TextColumn::make('cpl_ke')

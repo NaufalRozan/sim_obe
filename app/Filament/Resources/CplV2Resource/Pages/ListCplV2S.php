@@ -12,6 +12,8 @@ class ListCplV2S extends ListRecords
 {
     protected static string $resource = CplV2Resource::class;
 
+    protected static ?string $title = 'CPL V2';
+
     protected function getHeaderActions(): array
     {
         return [
@@ -21,13 +23,11 @@ class ListCplV2S extends ListRecords
 
     protected function getTableQuery(): Builder
     {
-        // Mendapatkan prodi_id dari user yang login
         $user = Auth::user();
         $kurikulumIds = $user->prodis->flatMap(function ($prodi) {
             return $prodi->kurikulums->pluck('id');
         })->toArray();
 
-        // Hanya menampilkan data cpl sesuai dengan kurikulum user
         return parent::getTableQuery()
             ->whereIn('kurikulum_id', $kurikulumIds)
             ->whereHas('kurikulum.prodi', function ($query) use ($user) {

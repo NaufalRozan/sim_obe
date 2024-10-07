@@ -12,6 +12,8 @@ class ListMks extends ListRecords
 {
     protected static string $resource = MkResource::class;
 
+    protected static ?string $title = 'MK';
+
     protected function getHeaderActions(): array
     {
         return [

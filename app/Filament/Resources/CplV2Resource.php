@@ -75,7 +75,7 @@ class CplV2Resource extends Resource
                 // Ambil MK pertama untuk mengetahui jumlah CPL yang dimiliki
                 ...collect(Mk::with('cpls')->first()?->cpls ?? [])->map(function ($cpl, $index) {
                     return TextColumn::make('cpls.' . $index . '.pivot.bobot')
-                        ->label('CPL ' . ($index + 1));
+                        ->label(($cpl->nama_cpl ?? ''));
                 })->toArray()
             ])
             ->filters([

@@ -12,6 +12,8 @@ class ListKurikulums extends ListRecords
 {
     protected static string $resource = KurikulumResource::class;
 
+    protected static ?string $title = 'Kurikulum';
+
     protected function getHeaderActions(): array
     {
         return [

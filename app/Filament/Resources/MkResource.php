@@ -86,6 +86,11 @@ class MkResource extends Resource
                         ->reactive()
                         ->required(),
 
+                    //nama_mk
+                    Forms\Components\TextInput::make('nama_mk')
+                        ->label('Mata Kuliah')
+                        ->required(),
+
                     Select::make('cpl_ids')
                         ->label('CPL')
                         ->options(function (callable $get) {
@@ -114,13 +119,11 @@ class MkResource extends Resource
 
                     //semester
                     Forms\Components\TextInput::make('semester')
+                        ->label('Semester')
                         ->required(),
                     //kode
                     Forms\Components\TextInput::make('kode')
-                        ->required(),
-
-                    //nama_mk
-                    Forms\Components\TextInput::make('nama_mk')
+                        ->label('Kode')
                         ->required(),
                 ]),
             ]);
