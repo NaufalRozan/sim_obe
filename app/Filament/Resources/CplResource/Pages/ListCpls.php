@@ -12,7 +12,7 @@ class ListCpls extends ListRecords
 {
     protected static string $resource = CplResource::class;
 
-    protected static ?string $title = 'CPL';
+    protected static ?string $title = 'CPL Prodi';
 
     protected function getHeaderActions(): array
     {

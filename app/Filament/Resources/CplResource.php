@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\CplResource\Pages;
 use App\Filament\Resources\CplResource\RelationManagers;
+use App\Filament\Resources\CplResource\RelationManagers\CplIndikatorRelationManager;
 use App\Models\Cpl;
 use App\Models\Kurikulum;
 use App\Models\Prodi;
@@ -28,7 +29,7 @@ class CplResource extends Resource
 
     protected static ?string $title = 'Finance dashboard';
 
-    protected static ?string $navigationLabel = 'CPL';
+    protected static ?string $navigationLabel = 'CPL Prodi';
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
@@ -36,7 +37,7 @@ class CplResource extends Resource
 
     protected static ?string $navigationGroup = 'CPL';
 
-    protected static ?string $breadcrumb = 'CPL';
+    protected static ?string $breadcrumb = 'CPL Prodi';
 
 
 
@@ -205,7 +206,7 @@ class CplResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            CplIndikatorRelationManager::class,
         ];
     }
 

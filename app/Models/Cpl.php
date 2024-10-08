@@ -29,4 +29,9 @@ class Cpl extends Model
     {
         return $this->belongsToMany(Mk::class, 'cpl_mk', 'cpl_id', 'mk_id')->withPivot('bobot');
     }
+
+    public function indikators()
+    {
+        return $this->hasMany(CplIndikator::class, 'cpl_id');
+    }
 }

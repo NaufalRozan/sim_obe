@@ -32,9 +32,9 @@ class CplV2Resource extends Resource
 
     protected static ?string $navigationGroup = 'CPL';
 
-    protected static ?string $breadcrumb = 'CPL V2';
+    protected static ?string $breadcrumb = 'CPL Prodi V2';
 
-    protected static ?string $navigationLabel = 'CPL V2';
+    protected static ?string $navigationLabel = 'CPL Prodi V2';
 
     protected static ?int $navigationSort = 3;
 

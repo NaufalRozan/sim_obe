@@ -17,4 +17,8 @@ class CplIndikator extends Model
         'deskripsi'
     ];
 
+    public function cpl()
+    {
+        return $this->belongsTo(Cpl::class, 'cpl_id');
+    }
 }

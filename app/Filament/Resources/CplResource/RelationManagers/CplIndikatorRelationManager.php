@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Filament\Resources\CplV2Resource\RelationManagers;
+namespace App\Filament\Resources\CplResource\RelationManagers;
 
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -10,39 +10,42 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
-class CplsRelationManager extends RelationManager
+class CplIndikatorRelationManager extends RelationManager
 {
-    protected static string $relationship = 'cpls';
+    protected static string $relationship = 'indikators';
 
     //nama title
-    public static ?string $title = 'Bobot CPL';
+    public static ?string $title = 'CPL Indikator';
 
     public function form(Form $form): Form
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('nama_cpl')
+                Forms\Components\TextInput::make('kode')
+                    ->label('Kode Indikator')
                     ->required()
-                    ->maxLength(255)
-                    ->disabled(),
-                Forms\Components\TextInput::make('bobot')
+                    ->maxLength(255),
+                Forms\Components\Textarea::make('deskripsi')
+                    ->label('Deskripsi')
+                    ->required(),
             ]);
     }
 
     public function table(Table $table): Table
     {
         return $table
-            ->recordTitleAttribute('nama_cpl')
+            ->recordTitleAttribute('kode')
             ->columns([
-                Tables\Columns\TextColumn::make('nama_cpl'),
-                //bobot
-                Tables\Columns\TextColumn::make('bobot')
+                Tables\Columns\TextColumn::make('kode')
+                    ->label('Kode Indikator'),
+                Tables\Columns\TextColumn::make('deskripsi')
+                    ->label('Deskripsi'),
             ])
             ->filters([
                 //
             ])
             ->headerActions([
-                // Tables\Actions\CreateAction::make(),
+                Tables\Actions\CreateAction::make(),
                 // Tables\Actions\AttachAction::make(),
             ])
             ->actions([
@@ -53,7 +56,7 @@ class CplsRelationManager extends RelationManager
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     // Tables\Actions\DetachBulkAction::make(),
-                    Tables\Actions\DeleteBulkAction::make(),
+                    // Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ]);
     }
