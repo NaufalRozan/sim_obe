@@ -36,13 +36,18 @@ class CpmksRelationManager extends RelationManager
                         return CplHasMk::where('mk_id', $mkId)
                             ->with('cpl')
                             ->get()
-                            ->pluck('cpl.nama_cpl', 'cpl_id') // Mengambil nama CPL untuk ditampilkan
+                            ->mapWithKeys(function ($cplHasMk) {
+                                // Menggabungkan nama CPL dan deskripsi menjadi "Nama CPL - Deskripsi"
+                                return [$cplHasMk->cpl_id => "{$cplHasMk->cpl->nama_cpl} - {$cplHasMk->cpl->deskripsi}"];
+                            })
                             ->toArray();
                     })
                     ->getOptionLabelUsing(function ($value) {
-                        // Menampilkan kembali CPL yang tersimpan
+                        // Menampilkan kembali CPL yang tersimpan dalam format "Nama CPL - Deskripsi"
                         $cplHasMk = CplHasMk::with('cpl')->where('cpl_id', $value)->first();
-                        return $cplHasMk && $cplHasMk->cpl ? $cplHasMk->cpl->nama_cpl : '-';
+                        return $cplHasMk && $cplHasMk->cpl
+                            ? "{$cplHasMk->cpl->nama_cpl} - {$cplHasMk->cpl->deskripsi}"
+                            : '-';
                     })
                     ->default(function (callable $get, $record) {
                         // Jika sedang mengedit, ambil nilai cpl_mk_id yang tersimpan di record dan tampilkan di dropdown
@@ -102,13 +107,16 @@ class CpmksRelationManager extends RelationManager
             ->recordTitleAttribute('nama_cpmk')
             ->columns([
                 Tables\Columns\TextColumn::make('cplMk.cpl.nama_cpl')
-                    ->label('Nama CPL')
+                    ->label('Kode CPL')
                     ->formatStateUsing(function ($record) {
-                        return $record->cplMk && $record->cplMk->cpl ? $record->cplMk->cpl->nama_cpl : '-';
+                        // Menggabungkan Nama CPL dan Deskripsi
+                        return $record->cplMk && $record->cplMk->cpl
+                            ? "{$record->cplMk->cpl->nama_cpl} - {$record->cplMk->cpl->deskripsi}"
+                            : '-';
                     })
                     ->sortable()
                     ->color(function ($record) {
-                        // Ambil total bobot dari tabel `cpmk` untuk `cpl_mk_id` yang sama
+                        // Mengambil total bobot dari tabel `cpmk` untuk `cpl_mk_id` yang sama
                         $totalBobot = \App\Models\Cpmk::where('cpl_mk_id', $record->cpl_mk_id)->sum('bobot');
 
                         // Jika total bobot > 100, beri warna teks merah
@@ -117,6 +125,7 @@ class CpmksRelationManager extends RelationManager
 
                 Tables\Columns\TextColumn::make('kode_cpmk')
                     ->label('Kode CPMK')
+                    ->sortable()
                     ->color(function ($record) {
                         $totalBobot = \App\Models\Cpmk::where('cpl_mk_id', $record->cpl_mk_id)->sum('bobot');
                         return $totalBobot > 100 ? 'danger' : null;
