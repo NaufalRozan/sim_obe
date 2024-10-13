@@ -121,7 +121,9 @@ class CpmksRelationManager extends RelationManager
 
                         // Jika total bobot > 100, beri warna teks merah
                         return $totalBobot > 100 ? 'danger' : null;
-                    }),
+                    })
+                    ->wrap() // Tambahkan wrap agar teks turun ke baris berikutnya
+                    ->extraAttributes(['class' => 'w-64']), // Menetapkan lebar kolom
 
                 Tables\Columns\TextColumn::make('kode_cpmk')
                     ->label('Kode CPMK')
@@ -129,21 +131,26 @@ class CpmksRelationManager extends RelationManager
                     ->color(function ($record) {
                         $totalBobot = \App\Models\Cpmk::where('cpl_mk_id', $record->cpl_mk_id)->sum('bobot');
                         return $totalBobot > 100 ? 'danger' : null;
-                    }),
+                    })
+                    ->wrap() // Tambahkan wrap agar teks turun ke baris berikutnya
+                    ->extraAttributes(['class' => 'w-32']), // Menetapkan lebar kolom
 
                 Tables\Columns\TextColumn::make('deskripsi')
                     ->label('Deskripsi')
                     ->color(function ($record) {
                         $totalBobot = \App\Models\Cpmk::where('cpl_mk_id', $record->cpl_mk_id)->sum('bobot');
                         return $totalBobot > 100 ? 'danger' : null;
-                    }),
+                    })
+                    ->wrap() // Tambahkan wrap agar teks turun ke baris berikutnya
+                    ->extraAttributes(['class' => 'w-96']), // Menetapkan lebar kolom yang lebih besar untuk deskripsi
 
                 Tables\Columns\TextColumn::make('bobot')
                     ->label('Bobot')
                     ->color(function ($record) {
                         $totalBobot = \App\Models\Cpmk::where('cpl_mk_id', $record->cpl_mk_id)->sum('bobot');
                         return $totalBobot > 100 ? 'danger' : null;
-                    }),
+                    })
+                    ->extraAttributes(['class' => 'w-16']), // Menetapkan lebar kolom untuk bobot
             ])
             ->filters([
                 //
