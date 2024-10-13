@@ -133,23 +133,30 @@ class MkResource extends Resource
     {
         return $table
             ->columns([
-                //semester
+                // Semester
                 TextColumn::make('semester')
-                    ->label('Semester'),
-                //kode
+                    ->label('Semester')
+                    ->extraAttributes(['class' => 'w-20']), // Lebar kolom diatur dengan class w-
+
+                // Kode
                 TextColumn::make('kode')
                     ->label('Kode')
-                    ->searchable(),
+                    ->searchable()
+                    ->extraAttributes(['class' => 'w-20']), // Lebar kolom diatur dengan class w-
+
+                // Mata Kuliah
                 TextColumn::make('nama_mk')
                     ->label('Mata Kuliah')
-                    ->searchable(),
-                //cpl yang terhubung dengan matakuliah
+                    ->searchable()
+                    ->extraAttributes(['class' => 'w-48']), // Lebar kolom diatur dengan class w-
+
+                // CPL yang terhubung dengan mata kuliah
                 TextColumn::make('cpls')
                     ->label('CPL')
                     ->formatStateUsing(function ($record) {
                         return $record->cpls->pluck('nama_cpl')->implode(', ');
-                    }),
-
+                    })
+                    ->extraAttributes(['class' => 'w-64']) // Lebar kolom diatur dengan class w-
             ])
             ->filters([
                 // Filter kurikulum dengan form custom
