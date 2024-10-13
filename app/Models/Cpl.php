@@ -27,11 +27,6 @@ class Cpl extends Model
     // Relasi many-to-many dengan model MK melalui tabel pivot cpl_mk
     public function mks()
     {
-        return $this->belongsToMany(Mk::class, 'cpl_mk', 'cpl_id', 'mk_id')->withPivot('bobot');
-    }
-
-    public function indikators()
-    {
-        return $this->hasMany(CplIndikator::class, 'cpl_id');
+        return $this->belongsToMany(Mk::class, 'cpl_mk', 'cpl_id', 'mk_id');
     }
 }

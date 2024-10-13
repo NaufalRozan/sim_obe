@@ -22,4 +22,9 @@ class CplHasMk extends Model
     {
         return $this->belongsTo(Cpl::class, 'cpl_id', 'id');
     }
+
+    public function cpmk()
+    {
+        return $this->hasMany(Cpmk::class, 'cpl_mk_id', 'id');
+    }
 }

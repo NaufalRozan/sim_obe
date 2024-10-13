@@ -2,21 +2,22 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\CplV2Resource\Pages;
-use App\Filament\Resources\CplV2Resource\RelationManagers;
-use App\Filament\Resources\CplV2Resource\RelationManagers\CplsRelationManager;
+use App\Filament\Resources\CpmkResource\Pages;
+use App\Filament\Resources\CpmkResource\RelationManagers;
+use App\Filament\Resources\CpmkResource\RelationManagers\CplmkRelationManager;
+use App\Filament\Resources\CpmkResource\RelationManagers\CplRelationManager;
+use App\Filament\Resources\CpmkResource\RelationManagers\CpmksRelationManager;
+use App\Filament\Resources\CpmkResource\RelationManagers\MkRelationManager;
+use App\Models\Cpmk;
 use App\Models\Kurikulum;
 use App\Models\Mk;
 use App\Models\Prodi;
 use Filament\Forms;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
-use Filament\Tables\Actions\AttachAction;
-use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Enums\FiltersLayout;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
@@ -24,59 +25,49 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Facades\Auth;
 
-class CplV2Resource extends Resource
+class CpmkResource extends Resource
 {
     protected static ?string $model = Mk::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
-    protected static ?string $navigationGroup = 'CPL';
+    protected static ?string $navigationGroup = 'CPMK';
 
-    protected static ?string $breadcrumb = 'CPL Prodi V2';
+    protected static ?string $breadcrumb = 'CPMK';
 
-    protected static ?string $navigationLabel = 'CPL Prodi V2';
-
-    protected static ?int $navigationSort = 3;
+    protected static ?string $navigationLabel = 'CPMK';
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                // kode
-                TextInput::make('kode')
-                    ->label('Kode')
-                    ->required()
-                    ->disabled()
-                    ->placeholder('Masukkan Kode Mata Kuliah'),
-
-                // nama_mk
-                TextInput::make('nama_mk')
-                    ->label('Nama Mata Kuliah')
-                    ->required()
-                    ->disabled()
-                    ->placeholder('Masukkan Nama Mata Kuliah'),
+                // kode MK
+                Forms\Components\TextInput::make('kode')
+                    ->label('Kode Matakuliah')
+                    ->disabled(),
+                //nama MK
+                Forms\Components\TextInput::make('nama_mk')
+                    ->label('Nama Matakuliah')
+                    ->disabled(),
             ]);
     }
-
-
 
     public static function table(Table $table): Table
     {
         return $table
-            ->query(Mk::with('cpls')) // Memuat relasi CPL
             ->columns([
-                // Kolom dasar seperti semester, kode, dan nama mata kuliah
-                TextColumn::make('semester')
+                //semester
+                Tables\Columns\TextColumn::make('semester')
                     ->label('Semester'),
-                TextColumn::make('kode')
-                    ->label('Kode'),
-                TextColumn::make('nama_mk')
-                    ->label('Mata Kuliah'),
-                // Ambil MK pertama untuk mengetahui jumlah CPL yang dimiliki
-                ...collect(Mk::with('cpls')->first()?->cpls ?? [])->map(function ($cpl, $index) {
-                    return TextColumn::make('cpls.' . $index . '.pivot.bobot')
-                        ->label(($cpl->nama_cpl ?? ''));
-                })->toArray()
+                //kode_mk
+                Tables\Columns\TextColumn::make('kode')
+                    ->label('Kode MK'),
+                //nama_mk
+                Tables\Columns\TextColumn::make('nama_mk')
+                    ->label('Nama MK'),
+                //rps cpmk
+                Tables\Columns\TextColumn::make('rps')
+                    ->label('RPS'),
             ])
             ->filters([
                 // Filter kurikulum dengan form custom
@@ -153,29 +144,49 @@ class CplV2Resource extends Resource
                             $query->where('kurikulum_id', $data['kurikulum_id']);
                         }
                     }),
+                // Filter semester (Dinamis berdasarkan data dari tabel MK)
+                SelectFilter::make('semester')
+                    ->label('Semester')
+                    ->options(function () {
+                        // Ambil semester yang unik dari tabel MK
+                        return Mk::query()
+                            ->select('semester')
+                            ->distinct()
+                            ->orderBy('semester')
+                            ->pluck('semester', 'semester')
+                            ->toArray();
+                    })
+                    ->query(function (Builder $query, array $data) {
+                        if (isset($data['value'])) {
+                            $query->where('semester', $data['value']);
+                        }
+                    })
+                    ->placeholder('Pilih Semester')
+
             ], FiltersLayout::AboveContent)
             ->actions([
-                // Tables\Actions\EditAction::make(),
-                // Tables\Actions\DeleteAction::make(),
+                Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
-                //
+                Tables\Actions\BulkActionGroup::make([
+                    // Tables\Actions\DeleteBulkAction::make(),
+                ]),
             ]);
     }
 
     public static function getRelations(): array
     {
         return [
-            CplsRelationManager::class,
+            CpmksRelationManager::class,
         ];
     }
 
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListCplV2S::route('/'),
-            // 'create' => Pages\CreateCplV2::route('/create'),
-            'edit' => Pages\EditCplV2::route('/{record}/edit'),
+            'index' => Pages\ListCpmks::route('/'),
+            'create' => Pages\CreateCpmk::route('/create'),
+            'edit' => Pages\EditCpmk::route('/{record}/edit'),
         ];
     }
 }

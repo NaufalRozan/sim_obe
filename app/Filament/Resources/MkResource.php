@@ -143,13 +143,13 @@ class MkResource extends Resource
                 TextColumn::make('nama_mk')
                     ->label('Mata Kuliah')
                     ->searchable(),
-                // bobot yang diambil dari total jumlah pivot cpl_mk
-                TextColumn::make('total_bobot')
-                    ->label('Total Bobot')
-                    ->getStateUsing(function (Mk $record) {
-                        // Menghitung total bobot dari tabel pivot cpl_mk
-                        return $record->cpls->sum('pivot.bobot');
+                //cpl yang terhubung dengan matakuliah
+                TextColumn::make('cpls')
+                    ->label('CPL')
+                    ->formatStateUsing(function ($record) {
+                        return $record->cpls->pluck('nama_cpl')->implode(', ');
                     }),
+
             ])
             ->filters([
                 // Filter kurikulum dengan form custom

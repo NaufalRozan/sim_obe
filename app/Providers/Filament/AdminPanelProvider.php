@@ -68,7 +68,12 @@ class AdminPanelProvider extends PanelProvider
             ->navigationGroups([
                 NavigationGroup::make()
                     ->label('CPL')
-                    ->collapsible(false)
+                    ->collapsible(false),
+                NavigationGroup::make()
+                    ->label('CPMK')
+                    ->collapsible(false),
+                    NavigationGroup::make()
+                    ->label('Admin')
             ]);
     }
 }
