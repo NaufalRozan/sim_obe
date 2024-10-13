@@ -107,15 +107,26 @@ class CplResource extends Resource
                 // menampilkan CPL hanya yang berelasi dengan kurikulum user
                 Tables\Columns\TextColumn::make('nama_cpl')
                     ->label('Kode')
-                    ->searchable(),
+                    ->searchable()
+                    ->extraAttributes(['class' => 'w-20']), // Lebar kolom diatur dengan class w-
+
                 Tables\Columns\TextColumn::make('kurikulum.prodi.nama_prodi')
-                    ->label('Program Studi'),
+                    ->label('Program Studi')
+                    ->extraAttributes(['class' => 'w-40']), // Lebar kolom diatur dengan class w-
+
                 Tables\Columns\TextColumn::make('kurikulum.nama_kurikulum')
-                    ->label('Kurikulum'),
+                    ->label('Kurikulum')
+                    ->extraAttributes(['class' => 'w-40']), // Lebar kolom diatur dengan class w-
+
                 Tables\Columns\TextColumn::make('cpl_ke')
-                    ->label('CPL Ke'),
+                    ->label('CPL Ke')
+                    ->extraAttributes(['class' => 'w-20']), // Lebar kolom diatur dengan class w-
+
                 Tables\Columns\TextColumn::make('deskripsi')
-                    ->label('Deskripsi'),
+                    ->label('Deskripsi')
+                    ->wrap() // Agar teks turun ke baris berikutnya jika terlalu panjang
+                    ->extraAttributes(['class' => 'w-96']), // Lebar kolom yang lebih besar untuk deskripsi
+
             ])
             ->filters([
                 // Filter kurikulum dengan form custom
