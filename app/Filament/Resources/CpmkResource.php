@@ -58,16 +58,20 @@ class CpmkResource extends Resource
             ->columns([
                 //semester
                 Tables\Columns\TextColumn::make('semester')
-                    ->label('Semester'),
+                    ->label('Semester')
+                    ->extraAttributes(['class' => 'w-20']),
                 //kode_mk
                 Tables\Columns\TextColumn::make('kode')
-                    ->label('Kode MK'),
+                    ->label('Kode MK')
+                    ->extraAttributes(['class' => 'w-20']),
                 //nama_mk
                 Tables\Columns\TextColumn::make('nama_mk')
-                    ->label('Nama MK'),
+                    ->label('Nama MK')
+                    ->extraAttributes(['class' => 'w-64']),
                 //rps cpmk
                 Tables\Columns\TextColumn::make('rps')
-                    ->label('RPS'),
+                    ->label('RPS')
+                    ->extraAttributes(['class' => 'w-48']),
             ])
             ->filters([
                 // Filter kurikulum dengan form custom
