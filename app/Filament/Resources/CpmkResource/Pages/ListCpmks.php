@@ -17,7 +17,7 @@ class ListCpmks extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            Actions\CreateAction::make(),
+            // Actions\CreateAction::make(),
         ];
     }
 
@@ -25,9 +25,11 @@ class ListCpmks extends ListRecords
     {
         // Mendapatkan prodi_id dari user yang login
         $user = Auth::user();
-        $prodiIds = $user->prodis->pluck('id')->toArray();
+        $kurikulumIds = $user->prodis->flatMap(function ($prodi) {
+            return $prodi->kurikulums->pluck('id');
+        })->toArray();
 
-        // Hanya menampilkan data kurikulum sesuai dengan prodi user
-        return parent::getTableQuery()->whereIn('prodi_id', $prodiIds);
+        // Hanya menampilkan data cpl sesuai dengan kurikulum user
+        return parent::getTableQuery()->whereIn('kurikulum_id', $kurikulumIds);
     }
 }
