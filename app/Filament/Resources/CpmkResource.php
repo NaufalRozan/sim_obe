@@ -54,7 +54,7 @@ class CpmkResource extends Resource
                     ->label('Upload RPS')
                     ->directory('rps-files') // Direktori penyimpanan
                     ->acceptedFileTypes(['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document']) // Hanya file PDF dan DOC/DOCX yang diterima
-                    ->maxSize(2048) // Ukuran maksimal 1MB
+                    ->maxSize(2048) // Maksimum 2MB
                     ->preserveFilenames() // Agar filename asli tetap dipertahankan
                     ->afterStateUpdated(function ($state, callable $set, $record) {
                         // Jika file RPS dihapus (state menjadi null), hapus file dari storage
