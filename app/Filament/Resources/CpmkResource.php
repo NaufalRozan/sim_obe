@@ -52,6 +52,7 @@ class CpmkResource extends Resource
                     ->disabled(),
                 Forms\Components\FileUpload::make('rps')
                     ->label('Upload RPS')
+                    ->columnSpanFull()
                     ->directory('rps-files') // Direktori penyimpanan
                     ->acceptedFileTypes(['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document']) // Hanya file PDF dan DOC/DOCX yang diterima
                     ->maxSize(2048) // Maksimum 2MB
