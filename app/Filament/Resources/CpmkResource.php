@@ -48,8 +48,8 @@ class CpmkResource extends Resource
                     ->disabled(),
                 //nama MK
                 Forms\Components\TextInput::make('nama_mk')
-                    ->label('Nama Matakuliah'),
-                // ->disabled(),
+                    ->label('Nama Matakuliah')
+                    ->disabled(),
                 Forms\Components\FileUpload::make('rps')
                     ->label('Upload RPS')
                     ->directory('rps-files') // Direktori penyimpanan
