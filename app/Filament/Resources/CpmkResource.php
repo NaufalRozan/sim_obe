@@ -24,6 +24,7 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class CpmkResource extends Resource
 {
@@ -49,6 +50,19 @@ class CpmkResource extends Resource
                 Forms\Components\TextInput::make('nama_mk')
                     ->label('Nama Matakuliah')
                     ->disabled(),
+                Forms\Components\FileUpload::make('rps')
+                    ->label('Upload RPS')
+                    ->directory('rps-files') // Direktori penyimpanan
+                    ->acceptedFileTypes(['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document']) // Hanya file PDF dan DOC/DOCX yang diterima
+                    ->maxSize(1024) // Ukuran maksimal 1MB
+                    ->preserveFilenames() // Agar filename asli tetap dipertahankan
+                    ->afterStateUpdated(function ($state, callable $set, $record) {
+                        // Jika file RPS dihapus (state menjadi null), hapus file dari storage
+                        if ($record && !$state && $record->rps) {
+                            Storage::delete('rps-files/' . $record->rps); // Hapus file dari storage
+                            $record->update(['rps' => null]); // Set kolom 'rps' menjadi null di database
+                        }
+                    })
             ]);
     }
 
@@ -68,10 +82,19 @@ class CpmkResource extends Resource
                 Tables\Columns\TextColumn::make('nama_mk')
                     ->label('Nama MK')
                     ->extraAttributes(['class' => 'w-64']),
-                //rps cpmk
                 Tables\Columns\TextColumn::make('rps')
                     ->label('RPS')
-                    ->extraAttributes(['class' => 'w-48']),
+                    ->formatStateUsing(function ($record) {
+                        if ($record->rps) {
+                            $fileName = basename($record->rps); // Mengambil nama file dari path
+                            $downloadUrl = asset('storage/' . $record->rps); // Membuat URL unduhan dari path file
+                            return '<a href="' . $downloadUrl . '" target="_blank" style="color: blue; text-decoration: underline;">' . $fileName . '</a>'; // Warna biru dan garis bawah
+                        }
+                        return 'No RPS Uploaded'; // Tampilkan pesan jika file tidak ada
+                    })
+                    ->html() // Mengaktifkan rendering HTML agar link dapat ditampilkan dengan benar
+                    ->extraAttributes(['class' => 'w-48']) // Menambahkan atribut ekstra, misalnya lebar kolom
+
             ])
             ->filters([
                 // Filter kurikulum dengan form custom
