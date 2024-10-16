@@ -148,6 +148,7 @@ class MkResource extends Resource
                 TextColumn::make('nama_mk')
                     ->label('Mata Kuliah')
                     ->searchable()
+                    ->wrap()
                     ->extraAttributes(['class' => 'w-48']), // Lebar kolom diatur dengan class w-
 
                 // CPL yang terhubung dengan mata kuliah

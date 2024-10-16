@@ -48,8 +48,8 @@ class CpmkResource extends Resource
                     ->disabled(),
                 //nama MK
                 Forms\Components\TextInput::make('nama_mk')
-                    ->label('Nama Matakuliah')
-                    ->disabled(),
+                    ->label('Nama Matakuliah'),
+                // ->disabled(),
                 Forms\Components\FileUpload::make('rps')
                     ->label('Upload RPS')
                     ->directory('rps-files') // Direktori penyimpanan
@@ -81,20 +81,21 @@ class CpmkResource extends Resource
                 //nama_mk
                 Tables\Columns\TextColumn::make('nama_mk')
                     ->label('Nama MK')
+                    ->wrap()
                     ->extraAttributes(['class' => 'w-64']),
+                // Kolom RPS
                 Tables\Columns\TextColumn::make('rps')
                     ->label('RPS')
                     ->formatStateUsing(function ($record) {
                         if ($record->rps) {
                             $fileName = basename($record->rps); // Mengambil nama file dari path
-                            $downloadUrl = asset('storage/' . $record->rps); // Membuat URL unduhan dari path file
-                            return '<a href="' . $downloadUrl . '" target="_blank" style="color: blue; text-decoration: underline;">' . $fileName . '</a>'; // Warna biru dan garis bawah
+                            $downloadUrl = asset('storage/' . $record->rps); // Membuat URL unduhan
+                            return '<a href="' . $downloadUrl . '" target="_blank" style="color: blue; text-decoration: underline;">' . $fileName . '</a>'; // Link dengan warna biru dan garis bawah
                         }
-                        return 'No RPS Uploaded'; // Tampilkan pesan jika file tidak ada
+                        return 'No RPS Uploaded'; // Pesan jika tidak ada file
                     })
-                    ->html() // Mengaktifkan rendering HTML agar link dapat ditampilkan dengan benar
-                    ->extraAttributes(['class' => 'w-48']) // Menambahkan atribut ekstra, misalnya lebar kolom
-
+                    ->html() // Mengaktifkan rendering HTML
+                    ->extraAttributes(['style' => 'width: 25%;']), // Lebar 25%
             ])
             ->filters([
                 // Filter kurikulum dengan form custom
