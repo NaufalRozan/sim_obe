@@ -83,6 +83,7 @@ class CpmkResource extends Resource
                 Tables\Columns\TextColumn::make('nama_mk')
                     ->label('Nama MK')
                     ->wrap()
+                    ->searchable()
                     ->extraAttributes(['class' => 'w-64']),
                 // Kolom RPS
                 Tables\Columns\TextColumn::make('rps')
