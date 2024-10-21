@@ -42,11 +42,12 @@ class UserResource extends Resource
                     ->email()
                     ->required(),
 
-                // Password
+                //form password jika create user password wajib di isi, jika edit data maka password tidak wajib di isi
                 Forms\Components\TextInput::make('password')
                     ->label('Password')
                     ->password()
-                    ->required(),
+                    ->visible(fn(callable $get) => is_null($get('id')))
+                    ->required(fn(callable $get) => is_null($get('id'))),
 
                 // Role
                 Forms\Components\Select::make('role')
