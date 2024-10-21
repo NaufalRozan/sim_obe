@@ -20,6 +20,9 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'role',
+        'nim',
+        'nip'
     ];
 
     public function prodis()
@@ -27,7 +30,7 @@ class User extends Authenticatable
         return $this->belongsToMany(Prodi::class, 'user_prodi', 'user_id', 'prodi_id');
     }
 
-    
+
     /**
      * The attributes that should be hidden for serialization.
      *

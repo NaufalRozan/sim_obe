@@ -18,30 +18,8 @@ class Mk extends Model
         'kurikulum_id',
         'semester',
         'nama_mk',
-        'rps',
+        'sks',
     ];
-
-    protected static function boot()
-    {
-        parent::boot();
-
-        // Hapus file saat record MK dihapus
-        static::deleting(function ($mk) {
-            if ($mk->rps) {
-                Storage::delete('rps-files/' . $mk->rps); // Hapus file dari storage
-            }
-        });
-
-        // Hapus file lama saat RPS di-update
-        static::updating(function ($mk) {
-            if ($mk->isDirty('rps')) { // Jika ada perubahan pada RPS
-                $originalRps = $mk->getOriginal('rps'); // Mendapatkan file RPS yang lama
-                if ($originalRps && $originalRps !== $mk->rps) { // Jika ada RPS lama yang berbeda dari yang baru
-                    Storage::delete('rps-files/' . $originalRps); // Hapus file RPS lama dari storage
-                }
-            }
-        });
-    }
 
     // Relasi many-to-many dengan model CPL melalui tabel pivot cpl_mk
     public function cpls()
