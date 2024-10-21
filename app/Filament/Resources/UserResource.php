@@ -5,10 +5,12 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\UserResource\Pages;
 use App\Filament\Resources\UserResource\RelationManagers;
 use App\Models\User;
+use Filament\Actions\DeleteAction;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Enums\FiltersLayout;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -105,7 +107,7 @@ class UserResource extends Resource
                 Tables\Columns\TextColumn::make('nip')
                     ->searchable()
                     ->label('NIP'),
-                    //prodi
+                //prodi
 
             ])
             ->filters([
@@ -118,14 +120,13 @@ class UserResource extends Resource
                         'Staf' => 'Staf',
                         'Mahasiswa' => 'Mahasiswa',
                     ]),
-            ])
+            ], layout: FiltersLayout::AboveContent)
             ->actions([
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
+                //
             ]);
     }
 
