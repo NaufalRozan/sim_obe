@@ -17,6 +17,8 @@ class Cpmk extends Model
         'kode_cpmk',
         'deskripsi',
         'bobot',
+        'batas_nilai_lulus',
+        'batas_nilai_memuaskan',
     ];
 
     public function cplMk()

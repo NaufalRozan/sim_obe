@@ -98,6 +98,14 @@ class CpmksRelationManager extends RelationManager
                 Forms\Components\TextInput::make('bobot')
                     ->label('Bobot')
                     ->numeric(),
+                //batas nilai lulus
+                Forms\Components\TextInput::make('batas_nilai_lulus')
+                    ->label('Batas Nilai Lulus')
+                    ->numeric(),
+                //batas nilai memuaskan
+                Forms\Components\TextInput::make('batas_nilai_memuaskan')
+                    ->label('Batas Nilai Memuaskan')
+                    ->numeric(),
             ]);
     }
 
@@ -151,6 +159,22 @@ class CpmksRelationManager extends RelationManager
                         return $totalBobot > 100 ? 'danger' : null;
                     })
                     ->extraAttributes(['class' => 'w-16']), // Menetapkan lebar kolom untuk bobot
+                //batas nilai lulus
+                Tables\Columns\TextColumn::make('batas_nilai_lulus')
+                    ->label('Batas Nilai Lulus')
+                    ->color(function ($record) {
+                        $totalBobot = \App\Models\Cpmk::where('cpl_mk_id', $record->cpl_mk_id)->sum('bobot');
+                        return $totalBobot > 100 ? 'danger' : null;
+                    })
+                    ->extraAttributes(['class' => 'w-16']), // Menetapkan lebar kolom untuk batas nilai lulus
+                //batas nilai memuaskan
+                Tables\Columns\TextColumn::make('batas_nilai_memuaskan')
+                    ->label('Batas Nilai Memuaskan')
+                    ->color(function ($record) {
+                        $totalBobot = \App\Models\Cpmk::where('cpl_mk_id', $record->cpl_mk_id)->sum('bobot');
+                        return $totalBobot > 100 ? 'danger' : null;
+                    })
+                    ->extraAttributes(['class' => 'w-16']), // Menetapkan lebar kolom untuk batas nilai memuaskan
             ])
             ->filters([
                 //

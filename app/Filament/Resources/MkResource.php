@@ -125,6 +125,10 @@ class MkResource extends Resource
                     Forms\Components\TextInput::make('kode')
                         ->label('Kode')
                         ->required(),
+                    //sks
+                    Forms\Components\TextInput::make('sks')
+                        ->label('SKS')
+                        ->required(),
                 ]),
             ]);
     }
@@ -157,7 +161,11 @@ class MkResource extends Resource
                     ->formatStateUsing(function ($record) {
                         return $record->cpls->pluck('nama_cpl')->implode(', ');
                     })
-                    ->extraAttributes(['class' => 'w-64']) // Lebar kolom diatur dengan class w-
+                    ->extraAttributes(['class' => 'w-64']), // Lebar kolom diatur dengan class w-
+                //sks
+                TextColumn::make('sks')
+                    ->label('SKS')
+                    ->extraAttributes(['class' => 'w-20']),
             ])
             ->filters([
                 // Filter kurikulum dengan form custom

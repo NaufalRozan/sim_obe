@@ -34,9 +34,9 @@ class CpmkResource extends Resource
 
     protected static ?string $navigationGroup = 'CPMK';
 
-    protected static ?string $breadcrumb = 'CPMK';
+    protected static ?string $breadcrumb = 'CPMK Matakuliah';
 
-    protected static ?string $navigationLabel = 'CPMK';
+    protected static ?string $navigationLabel = 'CPMK Matakuliah';
 
     public static function form(Form $form): Form
     {
@@ -50,20 +50,20 @@ class CpmkResource extends Resource
                 Forms\Components\TextInput::make('nama_mk')
                     ->label('Nama Matakuliah')
                     ->disabled(),
-                Forms\Components\FileUpload::make('rps')
-                    ->label('Upload RPS')
-                    ->columnSpanFull()
-                    ->directory('rps-files') // Direktori penyimpanan
-                    ->acceptedFileTypes(['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document']) // Hanya file PDF dan DOC/DOCX yang diterima
-                    ->maxSize(2048) // Maksimum 2MB
-                    ->preserveFilenames() // Agar filename asli tetap dipertahankan
-                    ->afterStateUpdated(function ($state, callable $set, $record) {
-                        // Jika file RPS dihapus (state menjadi null), hapus file dari storage
-                        if ($record && !$state && $record->rps) {
-                            Storage::delete('rps-files/' . $record->rps); // Hapus file dari storage
-                            $record->update(['rps' => null]); // Set kolom 'rps' menjadi null di database
-                        }
-                    })
+                // Forms\Components\FileUpload::make('rps')
+                //     ->label('Upload RPS')
+                //     ->columnSpanFull()
+                //     ->directory('rps-files') // Direktori penyimpanan
+                //     ->acceptedFileTypes(['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document']) // Hanya file PDF dan DOC/DOCX yang diterima
+                //     ->maxSize(2048) // Maksimum 2MB
+                //     ->preserveFilenames() // Agar filename asli tetap dipertahankan
+                //     ->afterStateUpdated(function ($state, callable $set, $record) {
+                //         // Jika file RPS dihapus (state menjadi null), hapus file dari storage
+                //         if ($record && !$state && $record->rps) {
+                //             Storage::delete('rps-files/' . $record->rps); // Hapus file dari storage
+                //             $record->update(['rps' => null]); // Set kolom 'rps' menjadi null di database
+                //         }
+                //     })
             ]);
     }
 
@@ -85,19 +85,23 @@ class CpmkResource extends Resource
                     ->wrap()
                     ->searchable()
                     ->extraAttributes(['class' => 'w-64']),
-                // Kolom RPS
-                Tables\Columns\TextColumn::make('rps')
-                    ->label('RPS')
-                    ->formatStateUsing(function ($record) {
-                        if ($record->rps) {
-                            $fileName = basename($record->rps); // Mengambil nama file dari path
-                            $downloadUrl = asset('storage/' . $record->rps); // Membuat URL unduhan
-                            return '<a href="' . $downloadUrl . '" target="_blank" style="color: blue; text-decoration: underline;">' . $fileName . '</a>'; // Link dengan warna biru dan garis bawah
-                        }
-                        return 'No RPS Uploaded'; // Pesan jika tidak ada file
-                    })
-                    ->html() // Mengaktifkan rendering HTML
-                    ->extraAttributes(['style' => 'width: 25%;']), // Lebar 25%
+                //sks
+                Tables\Columns\TextColumn::make('sks')
+                    ->label('SKS')
+                    ->extraAttributes(['class' => 'w-20']),
+                // // Kolom RPS
+                // Tables\Columns\TextColumn::make('rps')
+                //     ->label('RPS')
+                //     ->formatStateUsing(function ($record) {
+                //         if ($record->rps) {
+                //             $fileName = basename($record->rps); // Mengambil nama file dari path
+                //             $downloadUrl = asset('storage/' . $record->rps); // Membuat URL unduhan
+                //             return '<a href="' . $downloadUrl . '" target="_blank" style="color: blue; text-decoration: underline;">' . $fileName . '</a>'; // Link dengan warna biru dan garis bawah
+                //         }
+                //         return 'No RPS Uploaded'; // Pesan jika tidak ada file
+                //     })
+                //     ->html() // Mengaktifkan rendering HTML
+                //     ->extraAttributes(['style' => 'width: 25%;']), // Lebar 25%
             ])
             ->filters([
                 // Filter kurikulum dengan form custom
