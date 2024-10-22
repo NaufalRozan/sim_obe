@@ -5,17 +5,18 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class TahunAjaran extends Model
+class Semester extends Model
 {
     use HasFactory;
     public $timestamps = false;
-    protected $table = 'tahun_ajaran';
+    protected $table = 'semester';
     protected $fillable = [
-        'nama_tahun_ajaran',
+        'tahun_ajaran_id',
+        'angka_semester',
     ];
 
-    public function semester()
+    public function tahunAjaran()
     {
-        return $this->hasMany(Semester::class, 'tahun_ajaran_id', 'id');
+        return $this->belongsTo(TahunAjaran::class, 'tahun_ajaran_id', 'id');
     }
 }
