@@ -116,11 +116,6 @@ class MkResource extends Resource
                         ->preload()
                         ->reactive()
                         ->required(),
-
-                    //semester
-                    Forms\Components\TextInput::make('semester')
-                        ->label('Semester')
-                        ->required(),
                     //kode
                     Forms\Components\TextInput::make('kode')
                         ->label('Kode')
@@ -137,11 +132,6 @@ class MkResource extends Resource
     {
         return $table
             ->columns([
-                // Semester
-                TextColumn::make('semester')
-                    ->label('Semester')
-                    ->extraAttributes(['class' => 'w-20']), // Lebar kolom diatur dengan class w-
-
                 // Kode
                 TextColumn::make('kode')
                     ->label('Kode')

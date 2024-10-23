@@ -38,4 +38,16 @@ class Cpmk extends Model
             'mk_id' // Local key on cpl_mk table...
         );
     }
+
+    public function mkDitawarkan()
+    {
+        return $this->hasOneThrough(
+            MkDitawarkan::class,   // Model tujuan akhir
+            CplHasMk::class,       // Model perantara
+            'id',                  // Foreign key di CplHasMk yang menghubungkan ke MK
+            'mk_id',               // Foreign key di MkDitawarkan yang menghubungkan ke MK
+            'cpl_mk_id',           // Local key di CPMK
+            'id'                   // Local key di CplHasMk
+        );
+    }
 }

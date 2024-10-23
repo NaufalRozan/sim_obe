@@ -16,7 +16,6 @@ class Mk extends Model
     protected $fillable = [
         'kode',
         'kurikulum_id',
-        'semester',
         'nama_mk',
         'sks',
     ];
@@ -43,5 +42,10 @@ class Mk extends Model
             'id', // Local key di mk
             'id' // Local key di cpl_mk
         );
+    }
+
+    public function mkditawarkan()
+    {
+        return $this->hasMany(MkDitawarkan::class, 'mk_id', 'id');
     }
 }

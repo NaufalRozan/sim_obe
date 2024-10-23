@@ -25,34 +25,32 @@ class CpmksRelationManager extends RelationManager
     {
         return $form
             ->schema([
-                // Dropdown untuk CPL, menampilkan CPL terkait dengan MK yang dipilih di CpmkResource
-                Select::make('cpl_id')  // Menggunakan 'cpl_id' untuk dropdown CPL
+                // Dropdown untuk CPL terkait dengan MkDitawarkan melalui Mk
+                Select::make('cpl_id')
                     ->label('Pilih CPL')
-                    ->options(function (callable $get) {
-                        // Ambil MK yang dipilih
-                        $mkId = $this->ownerRecord->id;
+                    ->options(function () {
+                        $mkId = $this->ownerRecord->mk_id; // Ambil mk_id dari ownerRecord
 
-                        // Hanya tampilkan CPL yang terkait dengan MK yang dipilih
+                        // Ambil CPL terkait melalui Mk
                         return CplHasMk::where('mk_id', $mkId)
                             ->with('cpl')
                             ->get()
                             ->mapWithKeys(function ($cplHasMk) {
-                                // Menggabungkan nama CPL dan deskripsi menjadi "Nama CPL - Deskripsi"
-                                return [$cplHasMk->cpl_id => "{$cplHasMk->cpl->nama_cpl} - {$cplHasMk->cpl->deskripsi}"];
+                                return [
+                                    $cplHasMk->cpl_id => "{$cplHasMk->cpl->nama_cpl} - {$cplHasMk->cpl->deskripsi}"
+                                ];
                             })
                             ->toArray();
                     })
                     ->getOptionLabelUsing(function ($value) {
-                        // Menampilkan kembali CPL yang tersimpan dalam format "Nama CPL - Deskripsi"
                         $cplHasMk = CplHasMk::with('cpl')->where('cpl_id', $value)->first();
                         return $cplHasMk && $cplHasMk->cpl
                             ? "{$cplHasMk->cpl->nama_cpl} - {$cplHasMk->cpl->deskripsi}"
                             : '-';
                     })
                     ->default(function (callable $get, $record) {
-                        // Jika sedang mengedit, ambil nilai cpl_mk_id yang tersimpan di record dan tampilkan di dropdown
                         if ($record) {
-                            $cplHasMk = CplHasMk::find($record->cpl_mk_id); // Ambil dari cpl_mk_id yang tersimpan
+                            $cplHasMk = CplHasMk::find($record->cpl_mk_id);
                             return $cplHasMk ? $cplHasMk->cpl_id : null;
                         }
                         return null;
@@ -61,22 +59,20 @@ class CpmksRelationManager extends RelationManager
                     ->required()
                     ->reactive()
                     ->afterStateUpdated(function ($state, callable $set) {
-                        // Setelah CPL dipilih, ambil cpl_mk_id dari pivot cpl_mk
-                        $mkId = $this->ownerRecord->id;
+                        $mkId = $this->ownerRecord->mk_id; // Ambil mk_id dari ownerRecord
                         $cplHasMk = CplHasMk::where('mk_id', $mkId)
                             ->where('cpl_id', $state)
                             ->first();
+
                         if ($cplHasMk) {
-                            // Simpan cpl_mk_id yang ditemukan dari pivot table ke form
                             $set('cpl_mk_id', $cplHasMk->id);
                         }
                     })
                     ->afterStateHydrated(function ($state, callable $set, $record) {
-                        // Saat form di-load ulang (edit), pastikan CPL yang tersimpan di-load ulang dari cpl_mk_id
                         if ($record) {
-                            $cplHasMk = CplHasMk::find($record->cpl_mk_id); // Ambil dari cpl_mk_id
+                            $cplHasMk = CplHasMk::find($record->cpl_mk_id);
                             if ($cplHasMk) {
-                                $set('cpl_id', $cplHasMk->cpl_id); // Set dropdown dengan cpl_id yang benar
+                                $set('cpl_id', $cplHasMk->cpl_id);
                             }
                         }
                     }),

@@ -60,11 +60,11 @@ class AdminPanelProvider extends PanelProvider
                 Authenticate::class,
             ])
             //footer
-            ->renderHook(
-                // This line tells us where to render it
-                'panels::body.end',
-                // This is the view that will be rendered
-                fn () => view('customFooter'))
+            // ->renderHook(
+            //     // This line tells us where to render it
+            //     'panels::body.end',
+            //     // This is the view that will be rendered
+            //     fn () => view('customFooter'))
             ->navigationGroups([
                 NavigationGroup::make()
                     ->label('CPL')

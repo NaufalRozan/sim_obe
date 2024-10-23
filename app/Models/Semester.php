@@ -19,4 +19,9 @@ class Semester extends Model
     {
         return $this->belongsTo(TahunAjaran::class, 'tahun_ajaran_id', 'id');
     }
+
+    public function mkDitawarkan()
+    {
+        return $this->hasMany(MkDitawarkan::class, 'semester_id', 'id');
+    }
 }

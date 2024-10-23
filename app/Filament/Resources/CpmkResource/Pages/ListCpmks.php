@@ -17,19 +17,19 @@ class ListCpmks extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            // Actions\CreateAction::make(),
+            Actions\CreateAction::make(),
         ];
     }
 
-    protected function getTableQuery(): Builder
-    {
-        // Mendapatkan prodi_id dari user yang login
-        $user = Auth::user();
-        $kurikulumIds = $user->prodis->flatMap(function ($prodi) {
-            return $prodi->kurikulums->pluck('id');
-        })->toArray();
+    // protected function getTableQuery(): Builder
+    // {
+    //     // Mendapatkan prodi_id dari user yang login
+    //     $user = Auth::user();
+    //     $kurikulumIds = $user->prodis->flatMap(function ($prodi) {
+    //         return $prodi->kurikulums->pluck('id');
+    //     })->toArray();
 
-        // Hanya menampilkan data cpl sesuai dengan kurikulum user
-        return parent::getTableQuery()->whereIn('kurikulum_id', $kurikulumIds);
-    }
+    //     // Hanya menampilkan data cpl sesuai dengan kurikulum user
+    //     return parent::getTableQuery()->whereIn('kurikulum_id', $kurikulumIds);
+    // }
 }
