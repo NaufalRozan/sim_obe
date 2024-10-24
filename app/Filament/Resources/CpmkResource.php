@@ -103,8 +103,6 @@ class CpmkResource extends Resource
             ]);
     }
 
-
-
     public static function table(Table $table): Table
     {
         return $table
@@ -124,6 +122,7 @@ class CpmkResource extends Resource
                 //Semester
                 Tables\Columns\TextColumn::make('semester.angka_semester')
                     ->label('Semester')
+                    ->sortable()
                     ->extraAttributes(['class' => 'w-20']),
                 //Kelas
                 Tables\Columns\TextColumn::make('kelas')
@@ -143,9 +142,69 @@ class CpmkResource extends Resource
                     ->html() // Mengaktifkan rendering HTML
                     ->extraAttributes(['style' => 'width: 25%;']), // Lebar 25%
             ])
+            //default sort semester
+            ->defaultSort(function (Builder $query) {
+                // Melakukan join dengan tabel `semester` untuk sorting berdasarkan angka_semester
+                $query->join('semester', 'mk_ditawarkan.semester_id', '=', 'semester.id')
+                    ->orderBy('semester.angka_semester', 'asc');
+            })
             ->filters([
-                //
+                // Filter Prodi dan Tahun Ajaran dengan form custom
+                SelectFilter::make('filter_prodi_tahun_ajaran')
+                    ->label('Filter Prodi dan Tahun Ajaran')
+                    ->form([
+                        Grid::make(2) // Membuat grid dengan 2 kolom
+                            ->schema([
+                                // Dropdown untuk memilih Program Studi
+                                Select::make('prodi_id')
+                                    ->label('Program Studi')
+                                    ->placeholder('Pilih Program Studi')
+                                    ->options(function () {
+                                        // Mendapatkan prodi terkait user yang login
+                                        $user = Auth::user();
+                                        return $user->prodis->pluck('nama_prodi', 'id')->toArray();
+                                    })
+                                    ->reactive()
+                                    ->afterStateUpdated(function ($state, callable $get, callable $set) {
+                                        // Reset pilihan tahun ajaran saat prodi berubah
+                                        $set('tahun_ajaran_id', null);
+                                    }),
+
+                                // Dropdown untuk memilih Tahun Ajaran
+                                Select::make('tahun_ajaran_id')
+                                    ->label('Tahun Ajaran')
+                                    ->placeholder('Pilih Tahun Ajaran')
+                                    ->options(function () {
+                                        // Mengambil semua tahun ajaran
+                                        return \App\Models\TahunAjaran::pluck('nama_tahun_ajaran', 'id')->toArray();
+                                    })
+                                    ->reactive(),
+                            ]),
+                    ])->columnSpanFull()
+                    // Query untuk memfilter data berdasarkan Prodi dan Tahun Ajaran
+                    ->query(function (Builder $query, array $data) {
+                        // Jika prodi dan tahun ajaran belum dipilih, kembalikan query kosong
+                        if (!isset($data['prodi_id']) && !isset($data['tahun_ajaran_id'])) {
+                            $query->whereRaw('1 = 0'); // Ini memastikan tidak ada data yang ditampilkan
+                            return;
+                        }
+
+                        // Filter berdasarkan Prodi jika dipilih
+                        if (isset($data['prodi_id'])) {
+                            $query->whereHas('mk.kurikulum.prodi', function (Builder $query) use ($data) {
+                                $query->where('id', $data['prodi_id']);
+                            });
+                        }
+
+                        // Filter berdasarkan Tahun Ajaran jika dipilih
+                        if (isset($data['tahun_ajaran_id'])) {
+                            $query->whereHas('semester', function (Builder $query) use ($data) {
+                                $query->where('tahun_ajaran_id', $data['tahun_ajaran_id']);
+                            });
+                        }
+                    }),
             ], FiltersLayout::AboveContent)
+
             ->actions([
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
