@@ -30,6 +30,11 @@ class User extends Authenticatable
         return $this->belongsToMany(Prodi::class, 'user_prodi', 'user_id', 'prodi_id');
     }
 
+    public function krsMahasiswas()
+    {
+        return $this->hasMany(KrsMahasiswa::class, 'user_id', 'id');
+    }
+
 
     /**
      * The attributes that should be hidden for serialization.

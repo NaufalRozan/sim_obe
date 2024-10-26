@@ -38,4 +38,9 @@ class MkDitawarkan extends Model
             'id'                // Local key di CplHasMk
         );
     }
+
+    public function krsMahasiswas()
+    {
+        return $this->hasMany(KrsMahasiswa::class, 'mk_ditawarkan_id', 'id');
+    }
 }

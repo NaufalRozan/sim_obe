@@ -118,11 +118,11 @@ class CpmkResource extends Resource
                     ->label('Kode MK')
                     ->wrap()
                     ->searchable()
+                    ->sortable()
                     ->extraAttributes(['class' => 'w-20']),
                 //Semester
                 Tables\Columns\TextColumn::make('semester.angka_semester')
                     ->label('Semester')
-                    ->sortable()
                     ->extraAttributes(['class' => 'w-20']),
                 //Kelas
                 Tables\Columns\TextColumn::make('kelas')
@@ -144,10 +144,14 @@ class CpmkResource extends Resource
             ])
             //default sort semester
             ->defaultSort(function (Builder $query) {
-                // Melakukan join dengan tabel `semester` untuk sorting berdasarkan angka_semester
-                $query->join('semester', 'mk_ditawarkan.semester_id', '=', 'semester.id')
-                    ->orderBy('semester.angka_semester', 'asc');
+                // Join dengan tabel semester dan mk untuk sorting berdasarkan angka_semester dan kode
+                $query->select('mk_ditawarkan.*') // Pastikan memilih kolom dari mk_ditawarkan
+                    ->join('semester', 'mk_ditawarkan.semester_id', '=', 'semester.id')
+                    ->join('mk', 'mk_ditawarkan.mk_id', '=', 'mk.id')
+                    ->orderBy('semester.angka_semester', 'asc') // Sort by semester
+                    ->orderBy('mk.kode', 'asc');  // Sort by kode MK
             })
+
             ->filters([
                 // Filter Prodi dan Tahun Ajaran dengan form custom
                 SelectFilter::make('filter_prodi_tahun_ajaran')
