@@ -93,14 +93,17 @@ class CpmksRelationManager extends RelationManager
                 // Input untuk bobot
                 Forms\Components\TextInput::make('bobot')
                     ->label('Bobot')
+                    ->maxValue(100)
                     ->numeric(),
                 //batas nilai lulus
                 Forms\Components\TextInput::make('batas_nilai_lulus')
                     ->label('Batas Nilai Lulus')
+                    ->maxValue(100)
                     ->numeric(),
                 //batas nilai memuaskan
                 Forms\Components\TextInput::make('batas_nilai_memuaskan')
                     ->label('Batas Nilai Memuaskan')
+                    ->maxValue(100)
                     ->numeric(),
             ]);
     }
@@ -113,64 +116,75 @@ class CpmksRelationManager extends RelationManager
                 Tables\Columns\TextColumn::make('cplMk.cpl.nama_cpl')
                     ->label('Kode CPL')
                     ->formatStateUsing(function ($record) {
-                        // Menggabungkan Nama CPL dan Deskripsi
                         return $record->cplMk && $record->cplMk->cpl
                             ? "{$record->cplMk->cpl->nama_cpl} - {$record->cplMk->cpl->deskripsi}"
                             : '-';
                     })
                     ->sortable()
                     ->color(function ($record) {
-                        // Mengambil total bobot dari tabel `cpmk` untuk `cpl_mk_id` yang sama
-                        $totalBobot = \App\Models\Cpmk::where('cpl_mk_id', $record->cpl_mk_id)->sum('bobot');
+                        // Hitung total bobot semua CPMK berdasarkan MK yang sama
+                        $totalBobot = \App\Models\Cpmk::whereHas('cplMk', function ($query) use ($record) {
+                            $query->where('mk_id', $record->cplMk->mk_id); // Batasi berdasarkan MK yang sama
+                        })->sum('bobot');
 
-                        // Jika total bobot > 100, beri warna teks merah
+                        // Jika total bobot > 100, beri warna merah
                         return $totalBobot > 100 ? 'danger' : null;
                     })
-                    ->wrap() // Tambahkan wrap agar teks turun ke baris berikutnya
-                    ->extraAttributes(['class' => 'w-64']), // Menetapkan lebar kolom
+                    ->wrap()
+                    ->extraAttributes(['class' => 'w-64']),
 
                 Tables\Columns\TextColumn::make('kode_cpmk')
                     ->label('Kode CPMK')
                     ->sortable()
                     ->color(function ($record) {
-                        $totalBobot = \App\Models\Cpmk::where('cpl_mk_id', $record->cpl_mk_id)->sum('bobot');
+                        $totalBobot = \App\Models\Cpmk::whereHas('cplMk', function ($query) use ($record) {
+                            $query->where('mk_id', $record->cplMk->mk_id);
+                        })->sum('bobot');
                         return $totalBobot > 100 ? 'danger' : null;
                     })
-                    ->wrap() // Tambahkan wrap agar teks turun ke baris berikutnya
-                    ->extraAttributes(['class' => 'w-32']), // Menetapkan lebar kolom
+                    ->wrap()
+                    ->extraAttributes(['class' => 'w-32']),
 
                 Tables\Columns\TextColumn::make('deskripsi')
                     ->label('Deskripsi')
                     ->color(function ($record) {
-                        $totalBobot = \App\Models\Cpmk::where('cpl_mk_id', $record->cpl_mk_id)->sum('bobot');
+                        $totalBobot = \App\Models\Cpmk::whereHas('cplMk', function ($query) use ($record) {
+                            $query->where('mk_id', $record->cplMk->mk_id);
+                        })->sum('bobot');
                         return $totalBobot > 100 ? 'danger' : null;
                     })
-                    ->wrap() // Tambahkan wrap agar teks turun ke baris berikutnya
-                    ->extraAttributes(['class' => 'w-96']), // Menetapkan lebar kolom yang lebih besar untuk deskripsi
+                    ->wrap()
+                    ->extraAttributes(['class' => 'w-96']),
 
                 Tables\Columns\TextColumn::make('bobot')
                     ->label('Bobot')
                     ->color(function ($record) {
-                        $totalBobot = \App\Models\Cpmk::where('cpl_mk_id', $record->cpl_mk_id)->sum('bobot');
+                        $totalBobot = \App\Models\Cpmk::whereHas('cplMk', function ($query) use ($record) {
+                            $query->where('mk_id', $record->cplMk->mk_id);
+                        })->sum('bobot');
                         return $totalBobot > 100 ? 'danger' : null;
                     })
-                    ->extraAttributes(['class' => 'w-16']), // Menetapkan lebar kolom untuk bobot
-                //batas nilai lulus
+                    ->extraAttributes(['class' => 'w-16']),
+
                 Tables\Columns\TextColumn::make('batas_nilai_lulus')
                     ->label('Batas Nilai Lulus')
                     ->color(function ($record) {
-                        $totalBobot = \App\Models\Cpmk::where('cpl_mk_id', $record->cpl_mk_id)->sum('bobot');
+                        $totalBobot = \App\Models\Cpmk::whereHas('cplMk', function ($query) use ($record) {
+                            $query->where('mk_id', $record->cplMk->mk_id);
+                        })->sum('bobot');
                         return $totalBobot > 100 ? 'danger' : null;
                     })
-                    ->extraAttributes(['class' => 'w-16']), // Menetapkan lebar kolom untuk batas nilai lulus
-                //batas nilai memuaskan
+                    ->extraAttributes(['class' => 'w-16']),
+
                 Tables\Columns\TextColumn::make('batas_nilai_memuaskan')
                     ->label('Batas Nilai Memuaskan')
                     ->color(function ($record) {
-                        $totalBobot = \App\Models\Cpmk::where('cpl_mk_id', $record->cpl_mk_id)->sum('bobot');
+                        $totalBobot = \App\Models\Cpmk::whereHas('cplMk', function ($query) use ($record) {
+                            $query->where('mk_id', $record->cplMk->mk_id);
+                        })->sum('bobot');
                         return $totalBobot > 100 ? 'danger' : null;
                     })
-                    ->extraAttributes(['class' => 'w-16']), // Menetapkan lebar kolom untuk batas nilai memuaskan
+                    ->extraAttributes(['class' => 'w-16']),
             ])
             ->filters([
                 //
