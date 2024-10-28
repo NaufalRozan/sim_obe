@@ -12,6 +12,8 @@ class ListKrsMahasiswas extends ListRecords
 {
     protected static string $resource = KrsMahasiswaResource::class;
 
+    public static ?string $title = 'KRS Mahasiswa';
+
     protected function getHeaderActions(): array
     {
         return [
