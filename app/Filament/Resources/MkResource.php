@@ -123,6 +123,7 @@ class MkResource extends Resource
                     //sks
                     Forms\Components\TextInput::make('sks')
                         ->label('SKS')
+                        ->numeric()
                         ->required(),
                 ]),
             ]);
