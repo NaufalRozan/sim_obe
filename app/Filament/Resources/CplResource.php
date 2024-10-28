@@ -39,6 +39,7 @@ class CplResource extends Resource
 
     protected static ?string $breadcrumb = 'CPL Prodi';
 
+    protected static ?string $label = 'CPL';
 
 
     public static function form(Form $form): Form

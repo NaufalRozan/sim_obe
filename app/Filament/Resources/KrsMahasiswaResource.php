@@ -29,6 +29,8 @@ class KrsMahasiswaResource extends Resource
 
     protected static ?string $navigationLabel = 'KRS Mahasiswa';
 
+    protected static ?string $label = 'KRS Mahasiswa';
+
     public static function form(Form $form): Form
     {
         return $form

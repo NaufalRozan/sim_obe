@@ -39,6 +39,8 @@ class CpmkResource extends Resource
 
     protected static ?string $navigationLabel = 'CPMK Matakuliah';
 
+    protected static ?string $label = 'Matakuliah Ditawarkan';
+
     public static function form(Form $form): Form
     {
         return $form

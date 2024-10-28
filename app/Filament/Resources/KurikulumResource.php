@@ -29,6 +29,8 @@ class KurikulumResource extends Resource
     //mengganti nama breadcrumb
     protected static ?string $breadcrumb = 'Kurikulum';
 
+    protected static ?string $label = 'Kurikulum';
+
     public static function form(Form $form): Form
 
     {
