@@ -71,8 +71,18 @@ class CpmkResource extends Resource
 
                         Select::make('semester_id')
                             ->label('Semester')
-                            ->relationship('semester', 'angka_semester')
+                            ->options(function () {
+                                return \App\Models\Semester::with('tahunAjaran')
+                                    ->get()
+                                    ->mapWithKeys(function ($semester) {
+                                        $tahunAjaran = $semester->tahunAjaran->nama_tahun_ajaran;
+                                        return [$semester->id => "Semester {$semester->angka_semester} - {$tahunAjaran}"];
+                                    });
+                            })
+                            ->searchable()
+                            ->preload()
                             ->required(),
+
 
                         Select::make('kelas')
                             ->label('Kelas')
