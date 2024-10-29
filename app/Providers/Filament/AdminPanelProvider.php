@@ -72,6 +72,9 @@ class AdminPanelProvider extends PanelProvider
                 NavigationGroup::make()
                     ->label('CPMK')
                     ->collapsible(false),
+                    NavigationGroup::make()
+                    ->label('Pengajar')
+                    ->collapsible(false),
                 NavigationGroup::make()
                     ->label('Mahasiswa')
                     ->collapsible(false),

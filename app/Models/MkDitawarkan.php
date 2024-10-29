@@ -43,4 +43,9 @@ class MkDitawarkan extends Model
     {
         return $this->hasMany(KrsMahasiswa::class, 'mk_ditawarkan_id', 'id');
     }
+
+    public function pengajars()
+    {
+        return $this->hasMany(MkDitawarkanHasPengajar::class, 'mk_ditawarkan_id', 'id');
+    }
 }
