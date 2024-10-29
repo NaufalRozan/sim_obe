@@ -14,6 +14,7 @@ class Kurikulum extends Model
     protected $fillable = [
         'nama_kurikulum',
         'prodi_id',
+        'status',
     ];
 
     public function prodi()
