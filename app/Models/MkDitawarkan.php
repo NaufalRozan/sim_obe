@@ -46,6 +46,6 @@ class MkDitawarkan extends Model
 
     public function pengajars()
     {
-        return $this->hasMany(MkDitawarkanHasPengajar::class, 'mk_ditawarkan_id', 'id');
+        return $this->belongsToMany(Pengajar::class, 'mk_ditawarkan_pengajar', 'mk_ditawarkan_id', 'pengajar_id');
     }
 }

@@ -12,9 +12,11 @@ use App\Models\Cpmk;
 use App\Models\Kurikulum;
 use App\Models\Mk;
 use App\Models\MkDitawarkan;
+use App\Models\Pengajar;
 use App\Models\Prodi;
 use Filament\Forms;
 use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\MultiSelect;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -98,6 +100,26 @@ class CpmkResource extends Resource
                             ])
                             ->required(),
 
+                        Forms\Components\MultiSelect::make('pengajars')
+                            ->label('Pengajar')
+                            ->relationship('pengajars', 'user.name') // Pastikan relasi dan nama user ditampilkan
+                            ->required()
+                            ->searchable()
+                            ->preload()
+                            ->options(function () {
+                                $user = Auth::user();
+                                $prodiIds = $user->prodis->pluck('id'); // Filter berdasarkan prodi user
+
+                                return \App\Models\Pengajar::whereHas('user.prodis', function (Builder $query) use ($prodiIds) {
+                                    $query->whereIn('prodi_id', $prodiIds); // Filter sesuai prodi
+                                })
+                                    ->get()
+                                    ->mapWithKeys(function ($pengajar) {
+                                        return [$pengajar->id => $pengajar->user->name]; // Tampilkan nama pengajar
+                                    });
+                            }),
+
+
                         Forms\Components\FileUpload::make('rps')
                             ->label('Upload RPS')
                             ->directory('rps-files')
@@ -140,6 +162,16 @@ class CpmkResource extends Resource
                 Tables\Columns\TextColumn::make('kelas')
                     ->label('Kelas')
                     ->extraAttributes(['class' => 'w-20']),
+
+                Tables\Columns\TextColumn::make('pengajars')
+                    ->label('Pengajar')
+                    ->formatStateUsing(function ($record) {
+                        // Ambil nama-nama pengajar dan tampilkan satu per baris
+                        return $record->pengajars->map(fn($pengajar) => $pengajar->user->name)->implode('<br>');
+                    })
+                    ->html() // Mengaktifkan rendering HTML agar <br> berfungsi
+                    ->extraAttributes(['class' => 'w-64']), // Lebar kolom
+
                 // // Kolom RPS
                 Tables\Columns\TextColumn::make('rps')
                     ->label('RPS')
