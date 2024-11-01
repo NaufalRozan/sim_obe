@@ -221,18 +221,12 @@ class CpmkPengajarResource extends Resource
             ], FiltersLayout::AboveContent)
 
             ->actions([
-                Tables\Actions\Action::make('lihatMahasiswa')
-                    ->label('Lihat Mahasiswa')
-                    ->icon('heroicon-o-eye')
-                    ->action(function ($record, $livewire) {
-                        $livewire->emit('lihatMahasiswa', $record->id);
-                    })
-                    ->modalHeading('Daftar Mahasiswa')
-                    ->modalWidth('lg')
-                    ->modalContent(fn($record) => view('filament.pengajar.mahasiswa-list', [
-                        'mahasiswas' => $record->krsMahasiswas->map(fn($krs) => $krs->user),
-                    ])),
-
+                // Tables\Actions\Action::make('lihatMahasiswa')
+                //     ->label('Lihat Mahasiswa')
+                //     ->icon('heroicon-o-eye')
+                //     ->url(fn($record) => CpmkMahasiswaResource::getUrl('index', [
+                //         'mk_ditawarkan_id' => $record->id,
+                //     ])),
                 Tables\Actions\EditAction::make(),
                 // Tables\Actions\DeleteAction::make(),
             ])

@@ -50,4 +50,9 @@ class Cpmk extends Model
             'id'                   // Local key di CplHasMk
         );
     }
+
+    public function cpmkMahasiswa()
+    {
+        return $this->hasMany(CpmkMahasiswa::class, 'cpmk_id');
+    }
 }

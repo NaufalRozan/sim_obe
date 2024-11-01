@@ -24,4 +24,9 @@ class KrsMahasiswa extends Model
     {
         return $this->belongsTo(User::class, 'user_id', 'id');
     }
+
+    public function cpmkMahasiswa()
+    {
+        return $this->hasMany(CpmkMahasiswa::class, 'krs_mahasiswa_id');
+    }
 }
