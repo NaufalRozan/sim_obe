@@ -221,12 +221,15 @@ class CpmkPengajarResource extends Resource
             ], FiltersLayout::AboveContent)
 
             ->actions([
-                // Tables\Actions\Action::make('lihatMahasiswa')
-                //     ->label('Lihat Mahasiswa')
-                //     ->icon('heroicon-o-eye')
-                //     ->url(fn($record) => CpmkMahasiswaResource::getUrl('index', [
-                //         'mk_ditawarkan_id' => $record->id,
-                //     ])),
+                Tables\Actions\Action::make('lihatMahasiswa')
+                    ->label('Lihat Mahasiswa')
+                    ->icon('heroicon-o-eye')
+                    ->action(function ($record) {
+                        session(['mk_ditawarkan_id' => $record->id]); // Simpan di session
+                        return redirect()->to(CpmkMahasiswaResource::getUrl('index', [
+                            'mk_ditawarkan_id' => $record->id,
+                        ]));
+                    }),
                 Tables\Actions\EditAction::make(),
                 // Tables\Actions\DeleteAction::make(),
             ])

@@ -44,10 +44,10 @@ class Cpmk extends Model
         return $this->hasOneThrough(
             MkDitawarkan::class,   // Model tujuan akhir
             CplHasMk::class,       // Model perantara
-            'id',                  // Foreign key di CplHasMk yang menghubungkan ke MK
-            'mk_id',               // Foreign key di MkDitawarkan yang menghubungkan ke MK
-            'cpl_mk_id',           // Local key di CPMK
-            'id'                   // Local key di CplHasMk
+            'id',                  // Foreign key di CplHasMk yang menghubungkan ke Cpmk
+            'mk_id',               // Foreign key di MkDitawarkan yang menghubungkan ke Mk
+            'cpl_mk_id',           // Local key di Cpmk
+            'mk_id'                // Local key di CplHasMk
         );
     }
 

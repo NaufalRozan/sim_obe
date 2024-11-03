@@ -27,4 +27,9 @@ class CplHasMk extends Model
     {
         return $this->hasMany(Cpmk::class, 'cpl_mk_id', 'id');
     }
+
+    public function mkDitawarkan()
+    {
+        return $this->hasMany(MkDitawarkan::class, 'mk_id', 'mk_id');
+    }
 }
