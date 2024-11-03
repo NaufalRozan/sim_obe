@@ -16,12 +16,13 @@ class ListCpmkMahasiswas extends ListRecords
     {
         return [
             Actions\Action::make('download_excel')
-                ->label('Download Template Excel')
+                ->label('Download Template Nilai')
                 ->icon('heroicon-o-arrow-down-circle')
+                ->color('success') // Ubah ke huruf kecil
                 ->action(function () {
                     $mkDitawarkanId = request('mk_ditawarkan_id') ?? session('mk_ditawarkan_id'); // Ambil dari request atau session
                     if ($mkDitawarkanId) {
-                        return Excel::download(
+                        return \Maatwebsite\Excel\Facades\Excel::download(
                             new CpmkMahasiswaTemplateExport($mkDitawarkanId),
                             'template_cpmk.xlsx'
                         );
