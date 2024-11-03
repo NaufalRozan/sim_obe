@@ -39,7 +39,7 @@ class CpmkMahasiswaTemplateExport implements FromCollection, WithHeadings, WithM
 
         // Tambahkan heading untuk tiap CPMK
         foreach ($this->cpmks as $cpmk) {
-            $headings[] = "Nilai CPMK {$cpmk->kode_cpmk}";
+            $headings[] = "{$cpmk->kode_cpmk}";
         }
 
         return $headings;

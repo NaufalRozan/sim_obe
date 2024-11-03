@@ -4,6 +4,7 @@ namespace App\Filament\Pengajar\Resources\CpmkMahasiswaResource\Pages;
 
 use App\Exports\CpmkMahasiswaTemplateExport;
 use App\Filament\Pengajar\Resources\CpmkMahasiswaResource;
+use App\Models\MkDitawarkan;
 use Filament\Actions;
 use Filament\Resources\Pages\ListRecords;
 use Maatwebsite\Excel\Facades\Excel;
@@ -22,9 +23,16 @@ class ListCpmkMahasiswas extends ListRecords
                 ->action(function () {
                     $mkDitawarkanId = request('mk_ditawarkan_id') ?? session('mk_ditawarkan_id'); // Ambil dari request atau session
                     if ($mkDitawarkanId) {
-                        return \Maatwebsite\Excel\Facades\Excel::download(
+                        // Ambil nama MK Ditawarkan
+                        $mkDitawarkan = MkDitawarkan::find($mkDitawarkanId);
+                        $namaMk = $mkDitawarkan ? $mkDitawarkan->mk->nama_mk : 'template_cpmk';
+
+                        // Ganti karakter yang tidak valid di nama file dengan underscore
+                        $namaFile = str_replace(['/', '\\', ':', '*', '?', '"', '<', '>', '|'], '_', $namaMk) . '.xlsx';
+
+                        return Excel::download(
                             new CpmkMahasiswaTemplateExport($mkDitawarkanId),
-                            'template_cpmk.xlsx'
+                            $namaFile
                         );
                     } else {
                         \Filament\Notifications\Notification::make()
