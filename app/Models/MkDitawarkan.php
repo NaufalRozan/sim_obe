@@ -48,4 +48,9 @@ class MkDitawarkan extends Model
     {
         return $this->belongsToMany(Pengajar::class, 'mk_ditawarkan_pengajar', 'mk_ditawarkan_id', 'pengajar_id');
     }
+
+    public function laporans()
+    {
+        return $this->hasMany(Laporan::class, 'mk_ditawarkan_id', 'id');
+    }
 }

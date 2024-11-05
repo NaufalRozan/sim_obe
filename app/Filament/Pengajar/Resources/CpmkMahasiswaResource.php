@@ -83,7 +83,7 @@ class CpmkMahasiswaResource extends Resource
     {
         return [
             'index' => Pages\ListCpmkMahasiswas::route('/'),
-            'edit' => Pages\EditCpmkMahasiswa::route('/{record}/edit'),
+            // 'edit' => Pages\EditCpmkMahasiswa::route('/{record}/edit'),
         ];
     }
 }

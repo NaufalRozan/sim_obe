@@ -55,4 +55,9 @@ class Cpmk extends Model
     {
         return $this->hasMany(CpmkMahasiswa::class, 'cpmk_id');
     }
+
+    public function laporan()
+    {
+        return $this->hasMany(Laporan::class, 'cpmk_id');
+    }
 }

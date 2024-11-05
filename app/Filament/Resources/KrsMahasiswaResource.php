@@ -83,7 +83,6 @@ class KrsMahasiswaResource extends Resource
                     ->searchable()
                     ->label('Mahasiswa'),
 
-                //nim
                 Tables\Columns\TextColumn::make('user.nim')
                     ->sortable()
                     ->searchable()
@@ -97,11 +96,7 @@ class KrsMahasiswaResource extends Resource
                     ->sortable()
                     ->label('Kelas'),
             ])
-            ->defaultSort(function (Builder $query) {
-                // Join ke tabel users untuk melakukan sorting berdasarkan nama mahasiswa
-                $query->join('users', 'krs_mahasiswa.user_id', '=', 'users.id')
-                    ->orderBy('users.nim', 'asc');
-            })
+            ->defaultSort('user.nim', 'asc')
             ->filters([
                 //filter berdasarkan nama user
                 SelectFilter::make('user_id')
