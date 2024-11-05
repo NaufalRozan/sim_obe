@@ -4,9 +4,12 @@ namespace App\Filament\Pengajar\Resources\CpmkMahasiswaResource\Pages;
 
 use App\Exports\CpmkMahasiswaTemplateExport;
 use App\Filament\Pengajar\Resources\CpmkMahasiswaResource;
+use App\Imports\CpmkMahasiswaImport;
+use App\Models\CpmkMahasiswa;
 use App\Models\MkDitawarkan;
 use Filament\Actions;
 use Filament\Resources\Pages\ListRecords;
+use Illuminate\Contracts\View\View;
 use Maatwebsite\Excel\Facades\Excel;
 
 class ListCpmkMahasiswas extends ListRecords
@@ -42,5 +45,44 @@ class ListCpmkMahasiswas extends ListRecords
                     }
                 }),
         ];
+    }
+
+    public function getHeader(): ?View
+    {
+        $downloadExcelAction = $this->getHeaderActions()[0];
+        return view('filament.custom.upload-file', compact('downloadExcelAction'));
+    }
+
+    public $file;
+
+    public function save()
+    {
+        // Validasi bahwa file diunggah
+        if ($this->file) {
+            try {
+                // Impor data dari file
+                Excel::import(new CpmkMahasiswaImport(), $this->file->getRealPath());
+
+                // Notifikasi berhasil
+                \Filament\Notifications\Notification::make()
+                    ->title('Berhasil')
+                    ->body('Nilai CPMK berhasil diunggah.')
+                    ->success()
+                    ->send();
+            } catch (\Exception $e) {
+                // Tangani error
+                \Filament\Notifications\Notification::make()
+                    ->title('Gagal')
+                    ->body('Terjadi kesalahan saat mengunggah file: ' . $e->getMessage())
+                    ->danger()
+                    ->send();
+            }
+        } else {
+            \Filament\Notifications\Notification::make()
+                ->title('File Tidak Ditemukan')
+                ->body('Silakan pilih file untuk diunggah.')
+                ->warning()
+                ->send();
+        }
     }
 }
