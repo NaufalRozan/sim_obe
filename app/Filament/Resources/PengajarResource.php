@@ -32,13 +32,13 @@ class PengajarResource extends Resource
         return $form
             ->schema([
                 Forms\Components\Select::make('user_id')
-                    ->label('Dosen / Staff')
+                    ->label('Dosen / Staf')
                     ->options(function () {
                         $user = Auth::user(); // Mendapatkan user yang sedang login
                         $prodiIds = $user->prodis->pluck('id'); // Ambil semua prodi user yang login
 
                         // Hanya menampilkan user dengan role Dosen atau Staff yang terkait dengan prodi
-                        return User::whereIn('role', ['Dosen', 'Staff'])
+                        return User::whereIn('role', ['Dosen', 'Staf'])
                             ->whereHas('prodis', function (Builder $query) use ($prodiIds) {
                                 $query->whereIn('prodis.id', $prodiIds); // Filter berdasarkan prodi
                             })

@@ -17,7 +17,7 @@ class KrsMahasiswa extends Model
 
     public function mkDitawarkan()
     {
-        return $this->belongsTo(MkDitawarkan::class, 'mk_ditawarkan_id', 'id');
+        return $this->belongsTo(MkDitawarkan::class, 'mk_ditawarkan_id');
     }
 
     public function user()
