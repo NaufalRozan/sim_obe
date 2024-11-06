@@ -23,13 +23,77 @@ class LaporanResource extends Resource
 
     public static function form(Forms\Form $form): Forms\Form
     {
-        return $form->schema([]);
+        return $form
+            ->schema([
+                // mk_ditawarkan_id - Pilih MK Ditawarkan terlebih dahulu
+                Select::make('mk_ditawarkan_id')
+                    ->label('MK Ditawarkan')
+                    ->placeholder('Pilih MK Ditawarkan')
+                    ->options(function () {
+                        $user = Auth::user();
+
+                        // Ambil semua MK Ditawarkan yang terkait dengan pengajar yang sedang login
+                        return \App\Models\MkDitawarkan::whereHas('pengajars', function ($query) use ($user) {
+                            $query->where('pengajar_id', $user->pengajar->id);
+                        })
+                            ->with('mk') // Load relasi MK agar bisa menampilkan nama MK
+                            ->get()
+                            ->mapWithKeys(function ($mkDitawarkan) {
+                                return [$mkDitawarkan->id => $mkDitawarkan->mk->nama_mk ?? ''];
+                            });
+                    })
+                    ->reactive() // Buat mk_ditawarkan_id bersifat reactive agar memicu perubahan di cpmk_id
+                    ->required(),
+
+                // cpmk_id - Hanya menampilkan CPMK yang terkait dengan MK Ditawarkan yang dipilih
+                Select::make('cpmk_id')
+                    ->label('CPMK')
+                    ->placeholder('Pilih CPMK')
+                    ->options(function (callable $get) {
+                        $mkDitawarkanId = $get('mk_ditawarkan_id');
+
+                        // Jika MK Ditawarkan belum dipilih, kosongkan opsi
+                        if (!$mkDitawarkanId) {
+                            return [];
+                        }
+
+                        // Ambil semua CPMK yang terkait dengan MK Ditawarkan yang dipilih
+                        return \App\Models\Cpmk::whereHas('cplMk.mk.mkDitawarkan', function ($query) use ($mkDitawarkanId) {
+                            $query->where('mk_ditawarkan.id', $mkDitawarkanId);
+                        })->pluck('kode_cpmk', 'id')->toArray();
+                    })
+                    ->required(),
+
+                // faktor_pendukung_kendala
+                Forms\Components\Textarea::make('faktor_pendukung_kendala')
+                    ->label('Faktor Pendukung dan Kendala')
+                    ->placeholder('Masukkan Faktor Pendukung dan Kendala')
+                    ->required(),
+
+                // rtl
+                Forms\Components\Textarea::make('rtl')
+                    ->label('RTL')
+                    ->placeholder('Masukkan RTL')
+                    ->required(),
+            ]);
     }
 
     public static function table(Tables\Table $table): Tables\Table
     {
         return $table
-            ->columns([])
+            ->columns([
+                Tables\Columns\TextColumn::make('cpmk.kode_cpmk')
+                    ->label('CPMK'),
+
+                Tables\Columns\TextColumn::make('mkDitawarkan.mk.nama_mk')
+                    ->label('MK'),
+
+                Tables\Columns\TextColumn::make('faktor_pendukung_kendala')
+                    ->label('Faktor Pendukung dan Kendala'),
+
+                Tables\Columns\TextColumn::make('rtl')
+                    ->label('RTL'),
+            ])
             ->filters([
                 SelectFilter::make('filter_tahun_ajaran_mk')
                     ->label('Filter Tahun Ajaran dan MK Ditawarkan')
@@ -44,6 +108,7 @@ class LaporanResource extends Resource
                                     })
                                     ->reactive()
                                     ->afterStateUpdated(function ($state, callable $get, callable $set) {
+                                        // Reset pilihan MK Ditawarkan ketika Tahun Ajaran berubah
                                         $set('mk_ditawarkan_id', null);
                                     }),
 
@@ -54,6 +119,7 @@ class LaporanResource extends Resource
                                         $tahunAjaranId = $get('tahun_ajaran_id');
                                         $user = Auth::user();
 
+                                        // Hanya menampilkan opsi jika Tahun Ajaran dipilih
                                         if ($tahunAjaranId && $user && $user->pengajar) {
                                             return \App\Models\MkDitawarkan::whereHas('pengajars', function ($query) use ($user) {
                                                 $query->where('pengajar_id', $user->pengajar->id);
@@ -68,12 +134,19 @@ class LaporanResource extends Resource
 
                                         return [];
                                     })
-                                    ->disabled(fn(callable $get) => !$get('tahun_ajaran_id'))
+                                    ->disabled(fn(callable $get) => !$get('tahun_ajaran_id')) // Disable jika tahun ajaran belum dipilih
                                     ->reactive(),
                             ]),
                     ])
                     ->columnSpanFull()
                     ->query(function (Builder $query, array $data) {
+                        // Menjalankan query jika filter tahun ajaran atau MK Ditawarkan dipilih
+                        if (!isset($data['tahun_ajaran_id']) && !isset($data['mk_ditawarkan_id'])) {
+                            // Jika tidak ada yang dipilih, jangan tampilkan data apa pun
+                            $query->whereRaw('1 = 0');
+                            return;
+                        }
+
                         if (isset($data['tahun_ajaran_id'])) {
                             $query->whereHas('mkDitawarkan.semester', function (Builder $query) use ($data) {
                                 $query->where('tahun_ajaran_id', $data['tahun_ajaran_id']);
@@ -85,21 +158,19 @@ class LaporanResource extends Resource
                         }
                     }),
             ], FiltersLayout::AboveContent)
-            ->actions([])
+            ->actions([
+                Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make(),
+            ])
             ->bulkActions([]);
     }
 
     public static function getPages(): array
     {
         return [
-            'index' => Pages\LaporanPage::route('/'),
-        ];
-    }
-
-    public static function getWidgets(): array
-    {
-        return [
-            LaporanChart::class,
+            'index' => Pages\ListLaporans::route('/'),
+            'create' => Pages\CreateLaporan::route('/create'),
+            'edit' => Pages\EditLaporan::route('/{record}/edit'),
         ];
     }
 }
