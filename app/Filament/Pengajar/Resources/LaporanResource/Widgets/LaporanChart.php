@@ -10,6 +10,8 @@ class LaporanChart extends ChartWidget
 {
     protected static ?string $heading = 'Nilai CPMK';
 
+    protected int | string | array $columnSpan = 'full';
+
     public ?int $mk_ditawarkan_id = 2; // Default mk_ditawarkan_id
 
     protected $listeners = ['updateMkDitawarkanId' => 'setMkDitawarkanId'];
