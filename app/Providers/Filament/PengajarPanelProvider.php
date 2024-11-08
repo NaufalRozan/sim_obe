@@ -32,7 +32,7 @@ class PengajarPanelProvider extends PanelProvider
             ->discoverResources(in: app_path('Filament/Pengajar/Resources'), for: 'App\\Filament\\Pengajar\\Resources')
             ->discoverPages(in: app_path('Filament/Pengajar/Pages'), for: 'App\\Filament\\Pengajar\\Pages')
             ->pages([
-                Pages\Dashboard::class,
+                // Pages\Dashboard::class,
             ])
             ->discoverWidgets(in: app_path('Filament/Pengajar/Widgets'), for: 'App\\Filament\\Pengajar\\Widgets')
             ->widgets([
@@ -50,6 +50,7 @@ class PengajarPanelProvider extends PanelProvider
                 DisableBladeIconComponents::class,
                 DispatchServingFilamentEvent::class,
             ])
+            ->sidebarCollapsibleOnDesktop()
             ->authMiddleware([
                 Authenticate::class,
             ]);

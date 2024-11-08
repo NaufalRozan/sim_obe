@@ -10,6 +10,7 @@ use Filament\Tables;
 use App\Filament\Pengajar\Resources\LaporanResource\Widgets\LaporanChart;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Select;
+use Filament\Pages\Dashboard\Concerns\HasFiltersForm;
 use Filament\Tables\Enums\FiltersLayout;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
@@ -17,7 +18,11 @@ use Illuminate\Support\Facades\Auth;
 
 class LaporanResource extends Resource
 {
+    use HasFiltersForm;
+
     protected static ?string $model = Laporan::class;
+
+    protected static ?int $navigationSort = 3;
 
     protected static ?string $navigationIcon = 'heroicon-o-chart-bar';
 
@@ -38,11 +43,16 @@ class LaporanResource extends Resource
                         })
                             ->with('mk') // Load relasi MK agar bisa menampilkan nama MK
                             ->get()
+                            ->unique('mk_id') // Menggunakan unique untuk mendapatkan satu record per mata kuliah (mk_id)
                             ->mapWithKeys(function ($mkDitawarkan) {
-                                return [$mkDitawarkan->id => $mkDitawarkan->mk->nama_mk ?? ''];
+                                // Hanya tampilkan nama mata kuliah tanpa kelas
+                                $namaMk = $mkDitawarkan->mk->nama_mk ?? '';
+                                return [$mkDitawarkan->id => $namaMk];
                             });
                     })
-                    ->reactive() // Buat mk_ditawarkan_id bersifat reactive agar memicu perubahan di cpmk_id
+                    ->reactive()
+                    ->searchable()
+                    ->preload()
                     ->required(),
 
                 // cpmk_id - Hanya menampilkan CPMK yang terkait dengan MK Ditawarkan yang dipilih
@@ -86,13 +96,15 @@ class LaporanResource extends Resource
                     ->label('CPMK'),
 
                 Tables\Columns\TextColumn::make('mkDitawarkan.mk.nama_mk')
-                    ->label('MK'),
+                    ->label('Matakuliah'),
 
                 Tables\Columns\TextColumn::make('faktor_pendukung_kendala')
-                    ->label('Faktor Pendukung dan Kendala'),
+                    ->label('Faktor Pendukung dan Kendala')
+                    ->wrap(),
 
                 Tables\Columns\TextColumn::make('rtl')
-                    ->label('RTL'),
+                    ->label('RTL')
+                    ->wrap(),
             ])
             ->filters([
                 SelectFilter::make('filter_tahun_ajaran_mk')
@@ -100,6 +112,7 @@ class LaporanResource extends Resource
                     ->form([
                         Grid::make(2)
                             ->schema([
+                                // Tahun Ajaran
                                 Select::make('tahun_ajaran_id')
                                     ->label('Tahun Ajaran')
                                     ->placeholder('Pilih Tahun Ajaran')
@@ -112,14 +125,15 @@ class LaporanResource extends Resource
                                         $set('mk_ditawarkan_id', null);
                                     }),
 
+                                // MK Ditawarkan
                                 Select::make('mk_ditawarkan_id')
                                     ->label('MK Ditawarkan')
-                                    ->placeholder('Pilih Mata Kuliah Ditawarkan')
+                                    ->placeholder('Pilih MK Ditawarkan')
                                     ->options(function (callable $get) {
                                         $tahunAjaranId = $get('tahun_ajaran_id');
                                         $user = Auth::user();
 
-                                        // Hanya menampilkan opsi jika Tahun Ajaran dipilih
+                                        // Tampilkan hanya MK Ditawarkan yang sesuai dengan tahun ajaran yang dipilih
                                         if ($tahunAjaranId && $user && $user->pengajar) {
                                             return \App\Models\MkDitawarkan::whereHas('pengajars', function ($query) use ($user) {
                                                 $query->where('pengajar_id', $user->pengajar->id);
@@ -127,15 +141,22 @@ class LaporanResource extends Resource
                                                 ->whereHas('semester', function ($query) use ($tahunAjaranId) {
                                                     $query->where('tahun_ajaran_id', $tahunAjaranId);
                                                 })
-                                                ->with('mk')
+                                                ->with('mk') // Load relasi MK agar bisa menampilkan nama MK
                                                 ->get()
-                                                ->pluck('mk.nama_mk', 'id');
+                                                ->groupBy('mk.nama_mk') // Mengelompokkan berdasarkan nama MK
+                                                ->mapWithKeys(function ($groupedMkDitawarkan) {
+                                                    // Mengambil satu instance MK Ditawarkan per nama MK
+                                                    $firstMkDitawarkan = $groupedMkDitawarkan->first();
+                                                    return [$firstMkDitawarkan->id => $firstMkDitawarkan->mk->nama_mk];
+                                                });
                                         }
 
                                         return [];
                                     })
-                                    ->disabled(fn(callable $get) => !$get('tahun_ajaran_id')) // Disable jika tahun ajaran belum dipilih
-                                    ->reactive(),
+                                    ->disabled(fn(callable $get) => !$get('tahun_ajaran_id')) // Nonaktifkan jika tahun ajaran belum dipilih
+                                    ->reactive()
+                                    ->searchable()
+                                    ->preload(),
                             ]),
                     ])
                     ->columnSpanFull()

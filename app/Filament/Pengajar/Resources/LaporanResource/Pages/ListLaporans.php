@@ -5,12 +5,15 @@ namespace App\Filament\Pengajar\Resources\LaporanResource\Pages;
 use App\Filament\Pengajar\Resources\LaporanResource;
 use App\Filament\Pengajar\Resources\LaporanResource\Widgets\LaporanChart;
 use Filament\Actions;
+use Filament\Pages\Concerns\ExposesTableToWidgets;
 use Filament\Resources\Pages\ListRecords;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
 
 class ListLaporans extends ListRecords
 {
+    use ExposesTableToWidgets;
+
     protected static string $resource = LaporanResource::class;
 
     protected function getHeaderActions(): array

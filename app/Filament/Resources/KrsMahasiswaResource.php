@@ -64,13 +64,19 @@ class KrsMahasiswaResource extends Resource
                         })
                             ->with('mk') // Load relasi MK agar bisa menampilkan nama MK
                             ->get()
+                            ->sortBy(function ($mkDitawarkan) {
+                                return $mkDitawarkan->mk->nama_mk ?? ''; // Sort by nama_mk
+                            })
                             ->mapWithKeys(function ($mkDitawarkan) {
-                                return [$mkDitawarkan->id => $mkDitawarkan->mk->nama_mk ?? ''];
+                                // Format nama menjadi "nama_mk - kelas"
+                                $namaMkDanKelas = ($mkDitawarkan->mk->nama_mk ?? '') . ' - ' . $mkDitawarkan->kelas;
+                                return [$mkDitawarkan->id => $namaMkDanKelas];
                             });
                     })
                     ->searchable()
                     ->preload()
                     ->required(),
+
             ]);
     }
 

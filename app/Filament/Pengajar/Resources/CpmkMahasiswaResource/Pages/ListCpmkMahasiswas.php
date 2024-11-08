@@ -29,9 +29,10 @@ class ListCpmkMahasiswas extends ListRecords
                         // Ambil nama MK Ditawarkan
                         $mkDitawarkan = MkDitawarkan::find($mkDitawarkanId);
                         $namaMk = $mkDitawarkan ? $mkDitawarkan->mk->nama_mk : 'template_cpmk';
+                        $kelas = $mkDitawarkan ? $mkDitawarkan->kelas : 'Kelas';
 
                         // Ganti karakter yang tidak valid di nama file dengan underscore
-                        $namaFile = str_replace(['/', '\\', ':', '*', '?', '"', '<', '>', '|'], '_', $namaMk) . '.xlsx';
+                        $namaFile = str_replace(['/', '\\', ':', '*', '?', '"', '<', '>', '|'], '_', "{$namaMk} - {$kelas}.xlsx");
 
                         return Excel::download(
                             new CpmkMahasiswaTemplateExport($mkDitawarkanId),

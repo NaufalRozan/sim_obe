@@ -4,13 +4,18 @@ namespace App\Filament\Pengajar\Resources\LaporanResource\Widgets;
 
 use Filament\Widgets\ChartWidget;
 use App\Models\CpmkMahasiswa;
+use Filament\Widgets\Concerns\InteractsWithPageFilters;
 use Illuminate\Support\Facades\DB;
 
 class LaporanChart extends ChartWidget
 {
+    use InteractsWithPageFilters;
+
     protected static ?string $heading = 'Nilai CPMK';
 
     protected int | string | array $columnSpan = 'full';
+
+    public ?string $filter = 'today';
 
     public ?int $mk_ditawarkan_id = 2; // Default mk_ditawarkan_id
 
@@ -29,10 +34,14 @@ class LaporanChart extends ChartWidget
 
     protected function getData(): array
     {
-        $mkDitawarkanId = $this->mk_ditawarkan_id;
+        // Ambil ID MK dari mk_ditawarkan_id yang dipilih
+        $mkId = \App\Models\MkDitawarkan::where('id', $this->mk_ditawarkan_id)
+            ->pluck('mk_id')
+            ->first();
 
-        $data = CpmkMahasiswa::whereHas('krsMahasiswa', function ($query) use ($mkDitawarkanId) {
-            $query->where('mk_ditawarkan_id', $mkDitawarkanId);
+        // Ambil data nilai CPMK dari semua kelas yang terkait dengan MK yang dipilih
+        $data = CpmkMahasiswa::whereHas('krsMahasiswa.mkDitawarkan', function ($query) use ($mkId) {
+            $query->where('mk_id', $mkId);
         })
             ->join('cpmk', 'cpmk_mahasiswa.cpmk_id', '=', 'cpmk.id')
             ->select('cpmk.kode_cpmk', 'cpmk_mahasiswa.nilai')
