@@ -4,6 +4,7 @@ namespace App\Filament\Pengajar\Resources\LaporanResource\Pages;
 
 use App\Filament\Pengajar\Resources\LaporanResource;
 use App\Filament\Pengajar\Resources\LaporanResource\Widgets\LaporanChart;
+use App\Filament\Pengajar\Resources\LaporanResource\Widgets\Filters;
 use Filament\Actions;
 use Filament\Pages\Concerns\ExposesTableToWidgets;
 use Filament\Resources\Pages\ListRecords;
@@ -26,16 +27,14 @@ class ListLaporans extends ListRecords
     protected function getHeaderWidgets(): array
     {
         return [
+            Filters::class,
             LaporanChart::class,
         ];
     }
 
     protected function updatedFilters($name, $value)
     {
-        // Emit the event to update mk_ditawarkan_id in LaporanChart
-        if ($name === 'filter_tahun_ajaran_mk.mk_ditawarkan_id') {
-            $this->emit('updateMkDitawarkanId', $value);
-        }
+        $this->emit('filterUpdated', $name, $value);
     }
 
     protected function getTableQuery(): Builder

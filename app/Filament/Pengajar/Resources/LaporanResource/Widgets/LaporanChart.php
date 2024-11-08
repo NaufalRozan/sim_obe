@@ -4,42 +4,53 @@ namespace App\Filament\Pengajar\Resources\LaporanResource\Widgets;
 
 use Filament\Widgets\ChartWidget;
 use App\Models\CpmkMahasiswa;
+use App\Models\MkDitawarkan;
 use Filament\Widgets\Concerns\InteractsWithPageFilters;
-use Illuminate\Support\Facades\DB;
+use Livewire\Attributes\On;
 
 class LaporanChart extends ChartWidget
 {
     use InteractsWithPageFilters;
 
     protected static ?string $heading = 'Nilai CPMK';
-
     protected int | string | array $columnSpan = 'full';
 
-    public ?string $filter = 'today';
-
-    public ?int $mk_ditawarkan_id = 2; // Default mk_ditawarkan_id
-
-    protected $listeners = ['updateMkDitawarkanId' => 'setMkDitawarkanId'];
-
-    public function setMkDitawarkanId($mk_ditawarkan_id)
-    {
-        $this->mk_ditawarkan_id = $mk_ditawarkan_id;
-        $this->refresh(); // Refresh chart data
-    }
+    // Mengatur nilai awal untuk menghindari error
+    public ?int $mk_ditawarkan_id = null;
 
     protected function getType(): string
     {
         return 'bar';
     }
 
+    #[On('mkDitawarkanIdUpdate')]
+    public function mkDitawarkanIdUpdate($mkDitawarkanId)
+    {
+        $this->mk_ditawarkan_id = $mkDitawarkanId;
+    }
+
     protected function getData(): array
     {
-        // Ambil ID MK dari mk_ditawarkan_id yang dipilih
-        $mkId = \App\Models\MkDitawarkan::where('id', $this->mk_ditawarkan_id)
+        // Memastikan bahwa $mk_ditawarkan_id tidak null sebelum digunakan
+        if ($this->mk_ditawarkan_id === null) {
+            return [
+                'labels' => [],
+                'datasets' => [
+                    [
+                        'label' => 'Nilai Rata-Rata CPMK',
+                        'data' => [],
+                        'backgroundColor' => 'rgba(75, 192, 192, 0.2)',
+                        'borderColor' => 'rgba(75, 192, 192, 1)',
+                        'borderWidth' => 1,
+                    ],
+                ],
+            ];
+        }
+
+        $mkId = MkDitawarkan::where('id', $this->mk_ditawarkan_id)
             ->pluck('mk_id')
             ->first();
 
-        // Ambil data nilai CPMK dari semua kelas yang terkait dengan MK yang dipilih
         $data = CpmkMahasiswa::whereHas('krsMahasiswa.mkDitawarkan', function ($query) use ($mkId) {
             $query->where('mk_id', $mkId);
         })
