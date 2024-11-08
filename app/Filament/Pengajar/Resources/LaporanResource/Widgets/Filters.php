@@ -27,26 +27,56 @@ class Filters extends Widget implements HasForms
             ->statePath('data')
             ->schema([
                 // Filter mk_ditawarkan_id
-                Select::make('mk_ditawarkan_id')
-                    ->label('MK Ditawarkan')
-                    ->live()
-                    ->placeholder('Pilih MK Ditawarkan')
-                    ->options(function () {
-                        $user = Auth::user();
+                Grid::make(2)
+                    ->schema([
+                        // Tahun Ajaran
+                        Select::make('tahun_ajaran_id')
+                            ->label('Tahun Ajaran')
+                            ->placeholder('Pilih Tahun Ajaran')
+                            ->options(function () {
+                                return \App\Models\TahunAjaran::pluck('nama_tahun_ajaran', 'id')->toArray();
+                            })
+                            ->reactive()
+                            ->afterStateUpdated(function ($state, callable $get, callable $set) {
+                                // Reset pilihan MK Ditawarkan ketika Tahun Ajaran berubah
+                                $set('mk_ditawarkan_id', null);
+                            }),
 
-                        // Ambil semua MK Ditawarkan yang terkait dengan pengajar yang sedang login
-                        return \App\Models\MkDitawarkan::whereHas('pengajars', function ($query) use ($user) {
-                            $query->where('pengajar_id', $user->pengajar->id);
-                        })
-                            ->with('mk')
-                            ->get()
-                            ->unique('mk_id')
-                            ->mapWithKeys(function ($mkDitawarkan) {
-                                $namaMk = $mkDitawarkan->mk->nama_mk ?? '';
-                                return [$mkDitawarkan->id => $namaMk];
-                            });
-                    })
-                    ->afterStateUpdated(fn(?int $state) => $this->dispatch('mkDitawarkanIdUpdate', $state)),
+                        // MK Ditawarkan
+                        Select::make('mk_ditawarkan_id')
+                            ->statePath('data')
+                            ->label('MK Ditawarkan')
+                            ->placeholder('Pilih MK Ditawarkan')
+                            ->options(function (callable $get) {
+                                $tahunAjaranId = $get('tahun_ajaran_id');
+                                $user = Auth::user();
+
+                                // Tampilkan hanya MK Ditawarkan yang sesuai dengan tahun ajaran yang dipilih
+                                if ($tahunAjaranId && $user && $user->pengajar) {
+                                    return \App\Models\MkDitawarkan::whereHas('pengajars', function ($query) use ($user) {
+                                        $query->where('pengajar_id', $user->pengajar->id);
+                                    })
+                                        ->whereHas('semester', function ($query) use ($tahunAjaranId) {
+                                            $query->where('tahun_ajaran_id', $tahunAjaranId);
+                                        })
+                                        ->with('mk') // Load relasi MK agar bisa menampilkan nama MK
+                                        ->get()
+                                        ->groupBy('mk.nama_mk') // Mengelompokkan berdasarkan nama MK
+                                        ->mapWithKeys(function ($groupedMkDitawarkan) {
+                                            // Mengambil satu instance MK Ditawarkan per nama MK
+                                            $firstMkDitawarkan = $groupedMkDitawarkan->first();
+                                            return [$firstMkDitawarkan->id => $firstMkDitawarkan->mk->nama_mk];
+                                        });
+                                }
+
+                                return [];
+                            })
+                            ->disabled(fn(callable $get) => !$get('tahun_ajaran_id')) // Nonaktifkan jika tahun ajaran belum dipilih
+                            ->reactive()
+                            ->live()
+                            ->afterStateUpdated(fn(?int $state) => $this->dispatch('mkDitawarkanIdUpdate', $state))
+                            ->preload(),
+                    ]),
             ]);
     }
 }

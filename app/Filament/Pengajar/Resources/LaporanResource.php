@@ -10,7 +10,7 @@ use Filament\Tables;
 use App\Filament\Pengajar\Resources\LaporanResource\Widgets\LaporanChart;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Concerns\InteractsWithForms;
+use Filament\Pages\Dashboard\Concerns\HasFiltersForm;
 use Filament\Tables\Enums\FiltersLayout;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
@@ -18,9 +18,7 @@ use Illuminate\Support\Facades\Auth;
 
 class LaporanResource extends Resource
 {
-    use InteractsWithForms;
-
-    public ?array $data = [];
+    use HasFiltersForm;
 
     protected static ?string $model = Laporan::class;
 
@@ -129,7 +127,6 @@ class LaporanResource extends Resource
 
                                 // MK Ditawarkan
                                 Select::make('mk_ditawarkan_id')
-                                    ->statePath('data')
                                     ->label('MK Ditawarkan')
                                     ->placeholder('Pilih MK Ditawarkan')
                                     ->options(function (callable $get) {
@@ -159,7 +156,6 @@ class LaporanResource extends Resource
                                     ->disabled(fn(callable $get) => !$get('tahun_ajaran_id')) // Nonaktifkan jika tahun ajaran belum dipilih
                                     ->reactive()
                                     ->searchable()
-                                    ->live()
                                     ->preload(),
                             ]),
                     ])
