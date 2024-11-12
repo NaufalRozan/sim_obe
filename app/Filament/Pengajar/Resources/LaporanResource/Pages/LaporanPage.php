@@ -3,19 +3,17 @@
 namespace App\Filament\Pengajar\Resources\LaporanResource\Pages;
 
 use App\Filament\Pengajar\Resources\LaporanResource;
-use App\Filament\Pengajar\Resources\LaporanResource\Widgets\LaporanChart;
 use App\Filament\Pengajar\Resources\LaporanResource\Widgets\Filters;
-use Filament\Actions;
-use Filament\Pages\Concerns\ExposesTableToWidgets;
-use Filament\Resources\Pages\ListRecords;
+use App\Filament\Pengajar\Resources\LaporanResource\Widgets\LaporanChart;
+use Filament\Resources\Pages\Page;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
 
-class ListLaporans extends ListRecords
+class LaporanPage extends Page
 {
-    use ExposesTableToWidgets;
-
     protected static string $resource = LaporanResource::class;
+
+    protected static string $view = 'filament.pengajar.resources.laporan-resource.pages.laporan-page';
 
     protected static ?string $title = 'Laporan Grafik';
 
