@@ -20,15 +20,15 @@ class LaporanGrafikResource extends Resource
 
     // protected static ?string $model = Laporan::class;
 
-    protected static ?int $navigationSort = 2;
-
     protected static ?string $navigationIcon = 'heroicon-o-chart-bar';
 
-    protected static ?string $breadcrumb = 'Laporan Grafik';
+    protected static ?string $navigationGroup = 'Laporan';
 
-    protected static ?string $navigationLabel = 'Laporan Grafik';
+    protected static ?string $breadcrumb = 'Laporan Grafik CPMK';
 
-    protected static ?string $label = 'Laporan Grafik';
+    protected static ?string $navigationLabel = 'Laporan Grafik CPMK';
+
+    protected static ?string $label = 'Laporan Grafik CPMK';
 
     public static function getPages(): array
     {
