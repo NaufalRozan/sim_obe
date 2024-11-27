@@ -46,6 +46,6 @@ class Mk extends Model
 
     public function mkditawarkan()
     {
-        return $this->hasMany(MkDitawarkan::class, 'mk_id', 'id');
+        return $this->hasOne(MkDitawarkan::class, 'mk_id', 'id');
     }
 }

@@ -28,8 +28,15 @@ class CplHasMk extends Model
         return $this->hasMany(Cpmk::class, 'cpl_mk_id', 'id');
     }
 
-    public function mkDitawarkan()
+    public function mkditawarkan()
     {
-        return $this->hasMany(MkDitawarkan::class, 'mk_id', 'mk_id');
+        return $this->hasOneThrough(
+            MkDitawarkan::class,
+            Mk::class,
+            'id', // Foreign key di Mk (ke CplHasMk)
+            'mk_id', // Foreign key di MkDitawarkan
+            'mk_id', // Local key di CplHasMk
+            'id'     // Local key di Mk
+        );
     }
 }

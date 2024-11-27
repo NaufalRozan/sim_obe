@@ -29,4 +29,9 @@ class KrsMahasiswa extends Model
     {
         return $this->hasMany(CpmkMahasiswa::class, 'krs_mahasiswa_id');
     }
+
+    public function cpmk()
+    {
+        return $this->hasManyThrough(Cpmk::class, CpmkMahasiswa::class, 'krs_mahasiswa_id', 'id', 'id', 'cpmk_id');
+    }
 }

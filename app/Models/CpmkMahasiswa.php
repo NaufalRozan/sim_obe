@@ -24,6 +24,6 @@ class CpmkMahasiswa extends Model
 
     public function krsMahasiswa()
     {
-        return $this->belongsTo(KrsMahasiswa::class, 'krs_mahasiswa_id');
+        return $this->belongsTo(KrsMahasiswa::class, 'krs_mahasiswa_id', 'id');
     }
 }
