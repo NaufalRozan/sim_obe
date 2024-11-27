@@ -60,13 +60,14 @@ class LaporanMahasiswaResource extends Resource
                                     $kelas = $krs->mkDitawarkan->kelas ?? 'Tidak ada kelas';
 
                                     // Format data: kode CPMK - nama MK - kelas
-                                    return $cpmkMahasiswa->cpmk->kode_cpmk
-                                        . ' - ' . $cpmkMahasiswa->cpmk->cplMk->mk->nama_mk
-                                        . ' - ' . $kelas;
+                                    return $cpmkMahasiswa->cpmk->cplMk->mk->kode . ' - ' // Kode MK
+                                        . $cpmkMahasiswa->cpmk->kode_cpmk . ' - ' // Nama MK
+                                        . $cpmkMahasiswa->cpmk->deskripsi;
                                 });
                             })->join('<br>'); // Gabungkan daftar CPMK dengan <br> untuk tampil sebagai daftar
                     })
-                    ->html(),
+                    ->html()
+                    ->toggleable(),
 
 
                 Tables\Columns\TextColumn::make('lulus')
@@ -82,13 +83,14 @@ class LaporanMahasiswaResource extends Resource
                                         $cpmkMahasiswa->nilai >= $cpmkMahasiswa->cpmk->batas_nilai_lulus;
                                 })->map(function ($cpmkMahasiswa) use ($krs) {
                                     $kelas = $krs->mkDitawarkan->kelas ?? 'Tidak ada kelas';
-                                    return $cpmkMahasiswa->cpmk->kode_cpmk
-                                        . ' - ' . $cpmkMahasiswa->cpmk->cplMk->mk->nama_mk
-                                        . ' - ' . $kelas;
+                                    return $cpmkMahasiswa->cpmk->cplMk->mk->kode . ' - ' // Kode MK
+                                        . $cpmkMahasiswa->cpmk->kode_cpmk . ' - ' // Nama MK
+                                        . $cpmkMahasiswa->cpmk->deskripsi;
                                 });
                             })->join('<br>');
                     })
-                    ->html(),
+                    ->html()
+                    ->toggleable(),
 
                 Tables\Columns\TextColumn::make('tidak_lulus')
                     ->label('Tidak Lulus')
@@ -102,13 +104,13 @@ class LaporanMahasiswaResource extends Resource
                                     return $cpmkMahasiswa->nilai < $cpmkMahasiswa->cpmk->batas_nilai_lulus;
                                 })->map(function ($cpmkMahasiswa) use ($krs) {
                                     $kelas = $krs->mkDitawarkan->kelas ?? 'Tidak ada kelas';
-                                    return $cpmkMahasiswa->cpmk->kode_cpmk
-                                        . ' - ' . $cpmkMahasiswa->cpmk->cplMk->mk->nama_mk
-                                        . ' - ' . $kelas;
+                                    return $cpmkMahasiswa->cpmk->cplMk->mk->kode . ' - ' // Kode MK
+                                        . $cpmkMahasiswa->cpmk->kode_cpmk . ' - ' // Nama MK
+                                        . $cpmkMahasiswa->cpmk->deskripsi;
                                 });
                             })->join('<br>');
                     })
-                    ->html(),
+                    ->html()->toggleable(),
 
 
 
@@ -136,11 +138,12 @@ class LaporanMahasiswaResource extends Resource
                         return $unTakenMks->flatMap(function ($mk) {
                             return $mk->cpmks->map(function ($cpmk) use ($mk) {
                                 $kelas = $mk->mkditawarkan->first()->kelas ?? 'Tidak ada kelas';
-                                return $cpmk->kode_cpmk . ' - ' . $mk->nama_mk;
+                                return $mk->kode . ' - ' . $cpmk->kode_cpmk . ' - ' . $cpmk->deskripsi;
                             });
                         })->join('<br>'); // Gabungkan daftar CPMK menjadi string dengan <br> untuk baris baru
                     })
-                    ->html(),
+                    ->html()
+                    ->toggleable(),
 
             ])
             ->filters([

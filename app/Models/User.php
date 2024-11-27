@@ -79,7 +79,12 @@ class User extends Authenticatable implements FilamentUser
 
         // Akses panel admin untuk Prodi dan Mahasiswa
         if ($panel->getId() === 'admin') {
-            return in_array($this->role, ['Prodi', 'Mahasiswa']);
+            return in_array($this->role, ['Prodi']);
+        }
+
+        // Akses panel admin untuk Prodi dan Mahasiswa
+        if ($panel->getId() === 'mahasiswa') {
+            return in_array($this->role, ['Mahasiswa']);
         }
 
         // Selain itu, tolak akses
