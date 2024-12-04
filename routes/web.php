@@ -4,8 +4,9 @@ use Illuminate\Support\Facades\Route;
 use App\Filament\Pages\LihatLaporanMahasiswa;
 use App\Livewire\LihatLaporanMahasiswaTable;
 
+// Redirect root to /admin/login
 Route::get('/', function () {
-    return view('welcome');
+    return redirect('/admin/login');
 });
 
 // Route for Lihat Laporan Mahasiswa
