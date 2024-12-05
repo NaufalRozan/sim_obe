@@ -13,7 +13,7 @@ class ListNilaiMahasiswas extends ListRecords
 {
     protected static string $resource = NilaiMahasiswaResource::class;
 
-    protected static ?string $title = 'Nilai';
+    protected static ?string $title = 'Transkrip Nilai';
 
     protected function getHeaderActions(): array
     {
