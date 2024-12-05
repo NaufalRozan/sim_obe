@@ -29,4 +29,16 @@ class Cpl extends Model
     {
         return $this->belongsToMany(Mk::class, 'cpl_mk', 'cpl_id', 'mk_id');
     }
+
+    //bahan kajian yaitu bk
+    public function bks()
+    {
+        return $this->belongsToMany(BahanKajian::class, 'cpl_bk', 'cpl_id', 'bk_id');
+    }
+
+    //cplhasbk
+    public function cplHasBk()
+    {
+        return $this->hasMany(CplHasBk::class, 'cpl_id', 'id');
+    }
 }
