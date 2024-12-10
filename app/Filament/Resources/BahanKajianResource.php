@@ -10,6 +10,7 @@ use App\Models\Prodi;
 use Filament\Forms;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
@@ -73,38 +74,20 @@ class BahanKajianResource extends Resource
                         ->reactive()
                         ->required(),
 
-                    Select::make('cpl_ids')
-                        ->label('CPL')
-                        ->options(function (callable $get) {
-                            $kurikulum = Kurikulum::find($get('kurikulum_id'));
-
-                            if ($kurikulum) {
-                                return $kurikulum->cpls->pluck('nama_cpl', 'id');
-                            }
-
-                            return [];
-                        })
-                        ->disabled(function (callable $get) {
-                            // Disable jika Kurikulum belum dipilih
-                            return is_null($get('kurikulum_id'));
-                        })
-                        ->relationship('cpls', 'nama_cpl', function (Builder $query, callable $get) {
-                            $kurikulumId = $get('kurikulum_id');
-                            if ($kurikulumId) {
-                                $query->where('kurikulum_id', $kurikulumId);
-                            }
-                        })
-                        ->multiple()
-                        ->preload()
-                        ->reactive()
+                    //kodebk
+                    TextInput::make('kode_bk')
+                        ->label('Kode Bahan Kajian')
                         ->required(),
 
-                    //kajian
-                    Forms\Components\TextInput::make('kajian')
-                        ->label('Kajian')
+                    //nama BK
+                    TextInput::make('nama_bk')
+                        ->label('Nama Bahan Kajian')
                         ->required(),
 
-
+                    //acuan
+                    TextInput::make('acuan')
+                        ->label('Acuan')
+                        ->required(),
                 ]),
             ]);
     }
@@ -113,17 +96,17 @@ class BahanKajianResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('kajian')
+                TextColumn::make('kode_bk')
+                    ->searchable()
+                    ->sortable(),
+                TextColumn::make('nama_bk')
+                    ->searchable()
+                    ->sortable(),
+                TextColumn::make('acuan')
                     ->searchable()
                     ->sortable(),
 
-                // CPL yang terhubung dengan mata kuliah
-                TextColumn::make('cpls')
-                    ->label('CPL')
-                    ->formatStateUsing(function ($record) {
-                        return $record->cpls->pluck('nama_cpl')->implode(', ');
-                    })
-                    ->extraAttributes(['class' => 'w-64']), // Lebar kolom diatur dengan class w-
+
             ])
             ->filters([
                 //

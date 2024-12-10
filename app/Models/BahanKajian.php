@@ -13,7 +13,9 @@ class BahanKajian extends Model
     protected $table = 'bahan_kajian';
 
     protected $fillable = [
-        'kajian'
+        'kode_bk',
+        'nama_bk',
+        'acuan',
     ];
 
     public function cpls()
@@ -26,5 +28,4 @@ class BahanKajian extends Model
     {
         return $this->hasMany(CplHasBk::class, 'bk_id', 'id');
     }
-
 }
