@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\MkResource\Pages;
 use App\Filament\Resources\MkResource\RelationManagers;
+use App\Models\BahanKajian;
 use App\Models\Kurikulum;
 use App\Models\Mk;
 use App\Models\Prodi;
@@ -118,6 +119,17 @@ class MkResource extends Resource
                         ->preload()
                         ->reactive()
                         ->required(),
+
+                    Select::make('bk_ids')
+                        ->label('Bahan Kajian')
+                        ->relationship('bks', 'nama_bk') // Relasi ke bahan_kajian melalui metode bks di model
+                        ->multiple()
+                        ->preload()
+                        ->reactive()
+                        ->required(),
+
+
+
                     //kode
                     Forms\Components\TextInput::make('kode')
                         ->label('Kode')
@@ -155,6 +167,18 @@ class MkResource extends Resource
                         return $record->cpls->pluck('nama_cpl')->implode(', ');
                     })
                     ->extraAttributes(['class' => 'w-64']), // Lebar kolom diatur dengan class w-
+
+                // Bahan Kajian yang terhubung dengan mata kuliah
+
+                TextColumn::make('bks')
+                    ->label('Bahan Kajian')
+                    ->formatStateUsing(function ($record) {
+                        // Gabungkan nama bahan kajian dengan <br> agar tampil vertikal
+                        return $record->bks->pluck('nama_bk')->implode('<br>');
+                    })
+                    ->html() // Aktifkan HTML untuk mendukung <br>
+                    ->extraAttributes(['class' => 'w-64']),  // Lebar kolom diatur dengan class w-
+
                 //sks
                 TextColumn::make('sks')
                     ->label('SKS')

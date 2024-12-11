@@ -48,4 +48,9 @@ class Mk extends Model
     {
         return $this->hasOne(MkDitawarkan::class, 'mk_id', 'id');
     }
+
+    public function bks()
+    {
+        return $this->belongsToMany(BahanKajian::class, 'bk_mk', 'mk_id', 'bk_id');
+    }
 }

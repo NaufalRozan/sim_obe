@@ -28,4 +28,9 @@ class BahanKajian extends Model
     {
         return $this->hasMany(CplHasBk::class, 'bk_id', 'id');
     }
+
+    public function mks()
+    {
+        return $this->belongsToMany(Mk::class, 'bk_mk', 'bk_id', 'mk_id');
+    }
 }
