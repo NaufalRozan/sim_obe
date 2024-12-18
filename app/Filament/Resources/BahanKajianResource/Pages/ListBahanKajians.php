@@ -10,6 +10,8 @@ class ListBahanKajians extends ListRecords
 {
     protected static string $resource = BahanKajianResource::class;
 
+    protected static ?string $title = 'Bahan Kajian';
+
     protected function getHeaderActions(): array
     {
         return [

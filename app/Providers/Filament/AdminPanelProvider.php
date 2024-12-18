@@ -65,6 +65,9 @@ class AdminPanelProvider extends PanelProvider
             //     fn () => view('customFooter'))
             ->navigationGroups([
                 NavigationGroup::make()
+                    ->label('BK')
+                    ->collapsible(false),
+                NavigationGroup::make()
                     ->label('CPL')
                     ->collapsible(false),
                 NavigationGroup::make()

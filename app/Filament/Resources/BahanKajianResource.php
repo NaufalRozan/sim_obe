@@ -26,6 +26,12 @@ class BahanKajianResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
+    protected static ?string $navigationLabel = 'Bahan Kajian';
+
+    protected static ?string $navigationGroup = 'BK';
+
+    protected static ?string $breadcrumb = 'Bahan Kajian';
+
     public static function form(Form $form): Form
     {
         return $form

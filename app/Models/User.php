@@ -45,7 +45,28 @@ class User extends Authenticatable implements FilamentUser
     {
         return $this->hasOne(Pengajar::class, 'user_id');
     }
-    
+
+    // Relasi mahasiswa ke pengajar
+    public function mahasiswa()
+    {
+        return $this->belongsToMany(
+            User::class,                 // Model User
+            'mahasiswa_pengajar',        // Tabel pivot
+            'pengajar_id',               // Foreign key untuk pengajar
+            'mahasiswa_id'               // Foreign key untuk mahasiswa
+        )->where('role', 'Mahasiswa');   // Filter hanya mahasiswa
+    }
+
+    // Relasi pengajar ke mahasiswa
+    public function pengajars()
+    {
+        return $this->belongsToMany(
+            User::class,                 // Model User
+            'mahasiswa_pengajar',        // Tabel pivot
+            'mahasiswa_id',              // Foreign key untuk mahasiswa
+            'pengajar_id'                // Foreign key untuk pengajar
+        )->where('role', 'Dosen');       // Filter hanya dosen/pengajar
+    }
 
 
     /**
