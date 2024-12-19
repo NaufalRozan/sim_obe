@@ -13,10 +13,16 @@ class BahanKajian extends Model
     protected $table = 'bahan_kajian';
 
     protected $fillable = [
+        'kurikulum_id',
         'kode_bk',
         'nama_bk',
         'acuan',
     ];
+
+    public function kurikulum()
+    {
+        return $this->belongsTo(Kurikulum::class, 'kurikulum_id');
+    }
 
     public function cpls()
     {

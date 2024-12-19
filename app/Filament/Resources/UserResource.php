@@ -61,6 +61,13 @@ class UserResource extends Resource
                     ->reactive()
                     ->required(),
 
+
+                Forms\Components\Select::make('angkatan')
+                    ->label('Angkatan')
+                    ->options(array_combine(range(2000, date('Y')), range(2000, date('Y'))))
+                    ->visible(fn(callable $get) => $get('role') === 'Mahasiswa')
+                    ->required(fn(callable $get) => $get('role') === 'Mahasiswa'),
+
                 // NIM
                 Forms\Components\TextInput::make('nim')
                     ->label('NIM')
@@ -100,6 +107,10 @@ class UserResource extends Resource
                 Tables\Columns\TextColumn::make('role')
                     ->searchable()
                     ->label('Role'),
+                // angkatan
+                Tables\Columns\TextColumn::make('angkatan')
+                    ->searchable()
+                    ->label('Angkatan'),
                 // nim
                 Tables\Columns\TextColumn::make('nim')
                     ->searchable()

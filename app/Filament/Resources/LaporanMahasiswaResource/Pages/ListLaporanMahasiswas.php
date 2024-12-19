@@ -13,7 +13,7 @@ class ListLaporanMahasiswas extends ListRecords
 {
     protected static string $resource = LaporanMahasiswaResource::class;
 
-    public static ?string $title = 'Laporan Mahasiswa';
+    public static ?string $title = 'Laporan Mahasiswa Per CPMK';
 
     protected function getHeaderActions(): array
     {

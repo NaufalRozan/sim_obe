@@ -26,9 +26,9 @@ class LaporanMahasiswaResource extends Resource
 
     protected static ?string $navigationGroup = 'Laporan';
 
-    protected static ?string $breadcrumb = 'Laporan Mahasiswa';
+    protected static ?string $breadcrumb = 'Laporan Mahasiswa Per CPMK';
 
-    protected static ?string $navigationLabel = 'Laporan Mahasiswa';
+    protected static ?string $navigationLabel = 'Laporan Mahasiswa Per CPMK';
 
     public static function form(Forms\Form $form): Forms\Form
     {
@@ -148,11 +148,10 @@ class LaporanMahasiswaResource extends Resource
             ])
             ->filters([
                 SelectFilter::make('filter_tahun_ajaran_mk_kelas')
-                    ->label('Filter Tahun Ajaran, MK Ditawarkan, dan Kelas')
+                    ->label('Filter Tahun Ajaran dan MK Ditawarkan')
                     ->form([
-                        Grid::make(3)
+                        Grid::make(1) // Grid dengan satu baris untuk memuat filter ini
                             ->schema([
-                                // Tahun Ajaran
                                 Select::make('tahun_ajaran_id')
                                     ->label('Tahun Ajaran')
                                     ->placeholder('Pilih Tahun Ajaran')
@@ -163,9 +162,7 @@ class LaporanMahasiswaResource extends Resource
                                     }),
                             ]),
                     ])
-                    ->columnSpanFull()
                     ->query(function (Builder $query, array $data) {
-                        // Jika filter belum dipilih, jangan tampilkan data
                         if (!isset($data['tahun_ajaran_id'])) {
                             $query->whereRaw('1 = 0'); // Tidak menampilkan data apapun
                             return;
@@ -178,6 +175,26 @@ class LaporanMahasiswaResource extends Resource
                             });
                         }
                     }),
+
+                SelectFilter::make('filter_angkatan')
+                    ->label('Filter Angkatan')
+                    ->form([
+                        Grid::make(1) // Grid dengan satu baris untuk memuat filter ini
+                            ->schema([
+                                Select::make('angkatan')
+                                    ->label('Angkatan')
+                                    ->placeholder('Pilih Angkatan')
+                                    ->options(
+                                        array_combine(range(2000, date('Y')), range(2000, date('Y')))
+                                    )
+                                    ->reactive(),
+                            ]),
+                    ])
+                    ->query(function (Builder $query, array $data) {
+                        if (isset($data['angkatan'])) {
+                            $query->where('angkatan', $data['angkatan']);
+                        }
+                    })
             ], FiltersLayout::AboveContent)
 
             ->actions([])

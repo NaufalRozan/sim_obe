@@ -147,7 +147,6 @@ class DetailLaporanMahasiswaPerCpmkResource extends Resource
 
             ])
             ->filters([])
-
             ->actions([])
             ->bulkActions([]);
     }
