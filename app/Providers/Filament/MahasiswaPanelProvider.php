@@ -25,6 +25,7 @@ class MahasiswaPanelProvider extends PanelProvider
         return $panel
             ->id('mahasiswa')
             ->path('mahasiswa')
+            ->brandName('Sim Obe Mahasiswa')
             ->login()
             ->colors([
                 'primary' => Color::Red,
@@ -32,7 +33,7 @@ class MahasiswaPanelProvider extends PanelProvider
             ->discoverResources(in: app_path('Filament/Mahasiswa/Resources'), for: 'App\\Filament\\Mahasiswa\\Resources')
             ->discoverPages(in: app_path('Filament/Mahasiswa/Pages'), for: 'App\\Filament\\Mahasiswa\\Pages')
             ->pages([
-               
+
             ])
             ->discoverWidgets(in: app_path('Filament/Mahasiswa/Widgets'), for: 'App\\Filament\\Mahasiswa\\Widgets')
             ->widgets([

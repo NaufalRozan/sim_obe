@@ -31,7 +31,7 @@ class AdminPanelProvider extends PanelProvider
         return $panel
             ->default()
             ->id('admin')
-            ->brandName('Sim Obe Prodi Demo')
+            ->brandName('Sim Obe Prodi')
             ->path('admin')
             ->login()
             ->colors([

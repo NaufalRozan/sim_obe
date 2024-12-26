@@ -26,6 +26,7 @@ class PengajarPanelProvider extends PanelProvider
         return $panel
             ->id('pengajar')
             ->path('pengajar')
+            ->brandName('Sim Obe Prodi')
             ->login()  // Menyediakan halaman login khusus untuk Pengajar
             ->colors([
                 'primary' => Color::Amber,
