@@ -96,31 +96,51 @@ class LaporanMahasiswaResource extends Resource
                     })
                     ->sortable(),
 
-                Tables\Columns\TextColumn::make('belum_diambil')
+                    Tables\Columns\TextColumn::make('belum_diambil')
                     ->label('Belum Diambil')
                     ->getStateUsing(function (User $record) {
-                        // Ambil ID Prodi yang terkait dengan mahasiswa
-                        $prodiIds = $record->prodis->pluck('id');
+                        // Ambil semua MK yang sudah diambil user
+                        $takenMks = $record->krsMahasiswas()
+                            ->with(['mkDitawarkan', 'cpmkMahasiswa.cpmk']) // Ambil relasi terkait CPMK
+                            ->get();
 
-                        // Ambil semua MK yang terkait dengan Prodi mahasiswa
-                        $allMkIds = \App\Models\Mk::whereHas('kurikulum.prodi', function ($query) use ($prodiIds) {
-                            $query->whereIn('id', $prodiIds);
-                        })
-                            ->pluck('id') // Ambil semua ID MK
-                            ->toArray();
-
-                        // Ambil semua MK yang sudah diambil mahasiswa dari KRS
-                        $takenMkIds = $record->krsMahasiswas()
-                            ->with('mkDitawarkan')
-                            ->get()
-                            ->pluck('mkDitawarkan.mk_id') // Ambil ID MK yang sudah diambil
+                        $takenMkIds = $takenMks
+                            ->pluck('mkDitawarkan.mk_id')
                             ->unique()
                             ->toArray();
 
-                        // Hitung jumlah MK yang belum diambil
-                        $unTakenMkCount = collect($allMkIds)->diff($takenMkIds)->count();
+                        // Ambil semua MK dari prodi yang sama
+                        $prodiIds = $record->prodis->pluck('id');
+                        $allMks = \App\Models\Mk::whereHas('kurikulum.prodi', function ($query) use ($prodiIds) {
+                            $query->whereIn('id', $prodiIds);
+                        })
+                            ->with(['cpmks'])
+                            ->get();
 
-                        return $unTakenMkCount;
+                        $cpmkCount = 0; // Hitung total CPMK yang belum diambil
+
+                        // Iterasi semua MK untuk cek kondisi
+                        foreach ($allMks as $mk) {
+                            $isTaken = in_array($mk->id, $takenMkIds);
+
+                            if ($isTaken) {
+                                // MK sudah diambil, cek apakah ada nilai CPMK
+                                $cpmksBelumDinilai = $takenMks->filter(function ($krs) use ($mk) {
+                                    return $krs->mkDitawarkan->mk_id === $mk->id && $krs->cpmkMahasiswa->every(function ($cpmkMahasiswa) {
+                                        return is_null($cpmkMahasiswa->nilai); // Tidak ada nilai
+                                    });
+                                });
+
+                                if ($cpmksBelumDinilai->isNotEmpty()) {
+                                    $cpmkCount += $mk->cpmks->count(); // Tambahkan semua CPMK
+                                }
+                            } else {
+                                // MK belum diambil, tambahkan semua CPMK ke hitungan
+                                $cpmkCount += $mk->cpmks->count();
+                            }
+                        }
+
+                        return $cpmkCount; // Tampilkan jumlah CPMK
                     })
                     ->sortable(),
 
