@@ -118,29 +118,52 @@ class LaporanMahasiswaResource extends Resource
                     ->label('Belum Diambil')
                     ->getStateUsing(function (User $record) {
                         // Ambil semua MK yang sudah diambil user
-                        $takenMkIds = $record->krsMahasiswas()
-                            ->with('mkDitawarkan')
-                            ->get()
+                        $takenMks = $record->krsMahasiswas()
+                            ->with(['mkDitawarkan', 'cpmkMahasiswa.cpmk']) // Ambil relasi terkait CPMK
+                            ->get();
+
+                        $takenMkIds = $takenMks
                             ->pluck('mkDitawarkan.mk_id')
                             ->unique()
                             ->toArray();
 
-                        // Ambil semua MK dari prodi yang sama, tetapi belum diambil
-                        $prodiIds = $record->prodis->pluck('id'); // Prodi user
-                        $unTakenMks = \App\Models\Mk::whereHas('kurikulum.prodi', function ($query) use ($prodiIds) {
+                        // Ambil semua MK dari prodi yang sama
+                        $prodiIds = $record->prodis->pluck('id');
+                        $allMks = \App\Models\Mk::whereHas('kurikulum.prodi', function ($query) use ($prodiIds) {
                             $query->whereIn('id', $prodiIds);
                         })
-                            ->whereNotIn('id', $takenMkIds)
-                            ->with(['cpmks.cplMk.mkditawarkan'])
+                            ->with(['cpmks'])
                             ->get();
 
-                        // Format CPMK dari MK yang belum diambil
-                        return $unTakenMks->flatMap(function ($mk) {
-                            return $mk->cpmks->map(function ($cpmk) use ($mk) {
-                                $kelas = $mk->mkditawarkan->first()->kelas ?? 'Tidak ada kelas';
-                                return $mk->kode . ' - ' . $cpmk->kode_cpmk . ' - ' . $cpmk->deskripsi;
-                            });
-                        })->join('<br>'); // Gabungkan daftar CPMK menjadi string dengan <br> untuk baris baru
+                        $belumDiambil = [];
+
+                        // Iterasi semua MK untuk cek kondisi
+                        foreach ($allMks as $mk) {
+                            $isTaken = in_array($mk->id, $takenMkIds);
+
+                            if ($isTaken) {
+                                // MK sudah diambil, cek apakah ada nilai CPMK
+                                $cpmksBelumDinilai = $takenMks->filter(function ($krs) use ($mk) {
+                                    return $krs->mkDitawarkan->mk_id === $mk->id && $krs->cpmkMahasiswa->every(function ($cpmkMahasiswa) {
+                                        return is_null($cpmkMahasiswa->nilai); // Tidak ada nilai
+                                    });
+                                });
+
+                                if ($cpmksBelumDinilai->isNotEmpty()) {
+                                    foreach ($mk->cpmks as $cpmk) {
+                                        $belumDiambil[] = $mk->kode . ' - ' . $cpmk->kode_cpmk . ' - ' . $cpmk->deskripsi;
+                                    }
+                                }
+                            } else {
+                                // MK belum diambil, masukkan semua CPMK ke kategori
+                                foreach ($mk->cpmks as $cpmk) {
+                                    $belumDiambil[] = $mk->kode . ' - ' . $cpmk->kode_cpmk . ' - ' . $cpmk->deskripsi;
+                                }
+                            }
+                        }
+
+                        // Gabungkan daftar CPMK menjadi string dengan <br>
+                        return implode('<br>', $belumDiambil);
                     })
                     ->html()
                     ->toggleable(),
