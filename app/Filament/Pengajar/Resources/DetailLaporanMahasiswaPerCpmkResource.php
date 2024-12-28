@@ -195,7 +195,8 @@ class DetailLaporanMahasiswaPerCpmkResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListDetailLaporanMahasiswaPerCpmks::route('/'),
+            'index' => Pages\CustomTable::route('/'),
+            // 'custom-table' => Pages\CustomTable::route('/custom-table'),
         ];
     }
 }
