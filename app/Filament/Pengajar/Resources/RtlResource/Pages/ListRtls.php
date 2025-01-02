@@ -18,7 +18,7 @@ class ListRtls extends ListRecords
 {
     protected static string $resource = RtlResource::class;
 
-    protected static ?string $title = 'Rancangan Tindak Lanjut';
+    protected static ?string $title = 'Tindak Lanjut';
 
     protected function getHeaderActions(): array
     {

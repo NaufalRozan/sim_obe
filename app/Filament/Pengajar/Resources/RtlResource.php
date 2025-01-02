@@ -25,11 +25,11 @@ class RtlResource extends Resource
 
     protected static ?int $navigationSort = 3;
 
-    protected static ?string $breadcrumb = 'Rancangan Tindak Lanjut';
+    protected static ?string $breadcrumb = 'Tindak Lanjut';
 
-    protected static ?string $navigationLabel = 'Rancangan Tindak Lanjut';
+    protected static ?string $navigationLabel = 'Tindak Lanjut';
 
-    protected static ?string $label = 'Rancangan Tindak Lanjut';
+    protected static ?string $label = 'Tindak Lanjut';
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 

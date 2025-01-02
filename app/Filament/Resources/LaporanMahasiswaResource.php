@@ -49,70 +49,48 @@ class LaporanMahasiswaResource extends Resource
                     ->label('Lulus Memuaskan')
                     ->getStateUsing(function (User $record) {
                         return $record->krsMahasiswas()
-                            ->with(['mkDitawarkan', 'cpmkMahasiswa.cpmk.cplMk.mk'])
+                            ->with(['cpmkMahasiswa.cpmk']) // Ambil relasi CPMK Mahasiswa
                             ->get()
                             ->flatMap(function ($krs) {
                                 return $krs->cpmkMahasiswa->filter(function ($cpmkMahasiswa) {
-                                    // Filter data berdasarkan nilai >= batas_nilai_memuaskan
+                                    // Filter nilai >= batas memuaskan
                                     return $cpmkMahasiswa->nilai >= $cpmkMahasiswa->cpmk->batas_nilai_memuaskan;
-                                })->map(function ($cpmkMahasiswa) use ($krs) {
-                                    // Ambil kelas dari MkDitawarkan
-                                    $kelas = $krs->mkDitawarkan->kelas ?? 'Tidak ada kelas';
-
-                                    // Format data: kode CPMK - nama MK - kelas
-                                    return $cpmkMahasiswa->cpmk->cplMk->mk->kode . ' - ' // Kode MK
-                                        . $cpmkMahasiswa->cpmk->kode_cpmk . ' - ' // Nama MK
-                                        . $cpmkMahasiswa->cpmk->deskripsi;
                                 });
-                            })->join('<br>'); // Gabungkan daftar CPMK dengan <br> untuk tampil sebagai daftar
+                            })->count(); // Hitung jumlah nilai memuaskan
                     })
-                    ->html()
-                    ->toggleable(),
+                    ->sortable(),
 
 
                 Tables\Columns\TextColumn::make('lulus')
                     ->label('Lulus')
                     ->getStateUsing(function (User $record) {
                         return $record->krsMahasiswas()
-                            ->with(['mkDitawarkan', 'cpmkMahasiswa.cpmk.cplMk.mk'])
+                            ->with(['cpmkMahasiswa.cpmk'])
                             ->get()
                             ->flatMap(function ($krs) {
                                 return $krs->cpmkMahasiswa->filter(function ($cpmkMahasiswa) {
-                                    // Filter data untuk nilai < batas_nilai_memuaskan && >= batas_nilai_lulus
-                                    return $cpmkMahasiswa->nilai < $cpmkMahasiswa->cpmk->batas_nilai_memuaskan &&
-                                        $cpmkMahasiswa->nilai >= $cpmkMahasiswa->cpmk->batas_nilai_lulus;
-                                })->map(function ($cpmkMahasiswa) use ($krs) {
-                                    $kelas = $krs->mkDitawarkan->kelas ?? 'Tidak ada kelas';
-                                    return $cpmkMahasiswa->cpmk->cplMk->mk->kode . ' - ' // Kode MK
-                                        . $cpmkMahasiswa->cpmk->kode_cpmk . ' - ' // Nama MK
-                                        . $cpmkMahasiswa->cpmk->deskripsi;
+                                    // Filter nilai >= batas lulus && < batas memuaskan
+                                    return $cpmkMahasiswa->nilai >= $cpmkMahasiswa->cpmk->batas_nilai_lulus &&
+                                        $cpmkMahasiswa->nilai < $cpmkMahasiswa->cpmk->batas_nilai_memuaskan;
                                 });
-                            })->join('<br>');
+                            })->count(); // Hitung jumlah nilai lulus
                     })
-                    ->html()
-                    ->toggleable(),
+                    ->sortable(),
 
                 Tables\Columns\TextColumn::make('tidak_lulus')
                     ->label('Tidak Lulus')
                     ->getStateUsing(function (User $record) {
                         return $record->krsMahasiswas()
-                            ->with(['mkDitawarkan', 'cpmkMahasiswa.cpmk.cplMk.mk'])
+                            ->with(['cpmkMahasiswa.cpmk'])
                             ->get()
                             ->flatMap(function ($krs) {
                                 return $krs->cpmkMahasiswa->filter(function ($cpmkMahasiswa) {
-                                    // Filter data untuk nilai < batas_nilai_lulus
+                                    // Filter nilai < batas lulus
                                     return $cpmkMahasiswa->nilai < $cpmkMahasiswa->cpmk->batas_nilai_lulus;
-                                })->map(function ($cpmkMahasiswa) use ($krs) {
-                                    $kelas = $krs->mkDitawarkan->kelas ?? 'Tidak ada kelas';
-                                    return $cpmkMahasiswa->cpmk->cplMk->mk->kode . ' - ' // Kode MK
-                                        . $cpmkMahasiswa->cpmk->kode_cpmk . ' - ' // Nama MK
-                                        . $cpmkMahasiswa->cpmk->deskripsi;
                                 });
-                            })->join('<br>');
+                            })->count(); // Hitung jumlah nilai tidak lulus
                     })
-                    ->html()->toggleable(),
-
-
+                    ->sortable(),
 
                 Tables\Columns\TextColumn::make('belum_diambil')
                     ->label('Belum Diambil')
@@ -135,7 +113,7 @@ class LaporanMahasiswaResource extends Resource
                             ->with(['cpmks'])
                             ->get();
 
-                        $belumDiambil = [];
+                        $cpmkCount = 0; // Hitung total CPMK yang belum diambil
 
                         // Iterasi semua MK untuk cek kondisi
                         foreach ($allMks as $mk) {
@@ -150,23 +128,17 @@ class LaporanMahasiswaResource extends Resource
                                 });
 
                                 if ($cpmksBelumDinilai->isNotEmpty()) {
-                                    foreach ($mk->cpmks as $cpmk) {
-                                        $belumDiambil[] = $mk->kode . ' - ' . $cpmk->kode_cpmk . ' - ' . $cpmk->deskripsi;
-                                    }
+                                    $cpmkCount += $mk->cpmks->count(); // Tambahkan semua CPMK
                                 }
                             } else {
-                                // MK belum diambil, masukkan semua CPMK ke kategori
-                                foreach ($mk->cpmks as $cpmk) {
-                                    $belumDiambil[] = $mk->kode . ' - ' . $cpmk->kode_cpmk . ' - ' . $cpmk->deskripsi;
-                                }
+                                // MK belum diambil, tambahkan semua CPMK ke hitungan
+                                $cpmkCount += $mk->cpmks->count();
                             }
                         }
 
-                        // Gabungkan daftar CPMK menjadi string dengan <br>
-                        return implode('<br>', $belumDiambil);
+                        return $cpmkCount; // Tampilkan jumlah CPMK
                     })
-                    ->html()
-                    ->toggleable(),
+                    ->sortable(),
 
             ])
             ->filters([
@@ -220,7 +192,14 @@ class LaporanMahasiswaResource extends Resource
                     })
             ], FiltersLayout::AboveContent)
 
-            ->actions([])
+            ->actions([
+                Tables\Actions\Action::make('lihatDetailNilai')
+                    ->label('Detail Nilai')
+                    ->icon('heroicon-o-eye')
+                    ->url(fn(User $record) => DetailLaporanMahasiswaPerCpmkResource::getUrl('index', [
+                        'mahasiswa_id' => $record->id, // Kirim ID mahasiswa ke halaman detail
+                    ])),
+            ])
             ->bulkActions([]);
     }
 

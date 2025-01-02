@@ -1,25 +1,18 @@
 <?php
 
-namespace App\Filament\Pengajar\Resources;
+namespace App\Filament\Resources;
 
-use App\Filament\Pengajar\Resources\DetailLaporanMahasiswaPerCpmkResource\Pages;
-use App\Filament\Pengajar\Resources\DetailLaporanMahasiswaPerCpmkResource\RelationManagers;
+use App\Filament\Resources\DetailLaporanMahasiswaPerCpmkResource\Pages;
+use App\Filament\Resources\DetailLaporanMahasiswaPerCpmkResource\RelationManagers;
 use App\Models\DetailLaporanMahasiswaPerCpmk;
-use App\Models\TahunAjaran;
 use App\Models\User;
 use Filament\Forms;
-use Filament\Forms\Components\Grid;
-use Filament\Forms\Components\Select;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Enums\FiltersLayout;
-use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-use Illuminate\Support\Facades\Auth;
 
 class DetailLaporanMahasiswaPerCpmkResource extends Resource
 {
@@ -35,10 +28,12 @@ class DetailLaporanMahasiswaPerCpmkResource extends Resource
 
     protected static bool $shouldRegisterNavigation = false; // Tidak muncul di navigasi utama
 
-
-    public static function form(Forms\Form $form): Forms\Form
+    public static function form(Form $form): Form
     {
-        return $form->schema([]);
+        return $form
+            ->schema([
+                //
+            ]);
     }
 
     public static function table(Table $table): Table
