@@ -1,7 +1,7 @@
 <x-filament-panels::page>
-    <h1 class="text-xl font-bold mb-4">{{ __('Pemetaan BK terhadap MK') }}</h1>
+    <h1 class="text-xl font-bold mb-4">{{ __('Pemetaan CPL terhadap MK') }}</h1>
 
-    @if ($mks->isEmpty() || $bks->isEmpty())
+    @if ($mks->isEmpty() || $cpls->isEmpty())
         <p class="text-center text-gray-500">{{ __('Data tidak tersedia') }}</p>
     @else
         <table class="table-auto w-full border-collapse border border-gray-300">
@@ -9,9 +9,9 @@
                 <tr>
                     <th class="border border-gray-300 p-2 bg-gray-100">{{ __('Kode') }}</th>
                     <th class="border border-gray-300 p-2 bg-gray-100">{{ __('Nama Mata Kuliah') }}</th>
-                    @foreach ($bks as $bk)
+                    @foreach ($cpls as $cpl)
                         <th class="border border-gray-300 p-2 bg-gray-100 text-center">
-                            {{ $bk->kode_bk }}
+                            {{ $cpl->nama_cpl }}
                         </th>
                     @endforeach
                 </tr>
@@ -21,9 +21,9 @@
                     <tr>
                         <td class="border border-gray-300 p-2 text-center">{{ $mk->kode }}</td>
                         <td class="border border-gray-300 p-2">{{ $mk->nama_mk }}</td>
-                        @foreach ($bks as $bk)
+                        @foreach ($cpls as $cpl)
                             <td class="border border-gray-300 p-2 text-center">
-                                @if ($mk->bks->contains($bk->id))
+                                @if ($mk->cpls->contains($cpl->id))
                                     ✔
                                 @endif
                             </td>
@@ -31,7 +31,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="{{ 2 + count($bks) }}" class="text-center text-gray-500 p-4">
+                        <td colspan="{{ 2 + count($cpls) }}" class="text-center text-gray-500 p-4">
                             {{ __('Tidak ada mata kuliah yang tersedia') }}
                         </td>
                     </tr>
