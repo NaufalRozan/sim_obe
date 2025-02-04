@@ -31,7 +31,8 @@ class AdminPanelProvider extends PanelProvider
         return $panel
             ->default()
             ->id('admin')
-            ->brandName('Sim Obe Prodi')
+            ->brandName('Sim Obe Prodi Demo')
+            ->darkMode(false)
             ->path('admin')
             ->login()
             ->colors([
@@ -88,5 +89,12 @@ class AdminPanelProvider extends PanelProvider
                 NavigationGroup::make()
                     ->label('Admin')
             ]);
+    }
+
+    public function boot()
+    {
+        FilamentView::registerRenderHook(PanelsRenderHook::AUTH_LOGIN_FORM_BEFORE, function () {
+            return view('partials.login-popup');
+        });
     }
 }

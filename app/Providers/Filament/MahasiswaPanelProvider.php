@@ -9,6 +9,8 @@ use Filament\Pages;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
+use Filament\Support\Facades\FilamentView;
+use Filament\View\PanelsRenderHook;
 use Filament\Widgets;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
@@ -24,17 +26,16 @@ class MahasiswaPanelProvider extends PanelProvider
     {
         return $panel
             ->id('mahasiswa')
+            ->brandName('Sim Obe Mahasiswa Demo')
             ->path('mahasiswa')
-            ->brandName('Sim Obe Mahasiswa')
+            ->darkMode(false)
             ->login()
             ->colors([
                 'primary' => Color::Red,
             ])
             ->discoverResources(in: app_path('Filament/Mahasiswa/Resources'), for: 'App\\Filament\\Mahasiswa\\Resources')
             ->discoverPages(in: app_path('Filament/Mahasiswa/Pages'), for: 'App\\Filament\\Mahasiswa\\Pages')
-            ->pages([
-
-            ])
+            ->pages([])
             ->discoverWidgets(in: app_path('Filament/Mahasiswa/Widgets'), for: 'App\\Filament\\Mahasiswa\\Widgets')
             ->widgets([
                 Widgets\AccountWidget::class,
@@ -54,5 +55,12 @@ class MahasiswaPanelProvider extends PanelProvider
             ->authMiddleware([
                 Authenticate::class,
             ]);
+    }
+
+    public function boot()
+    {
+        FilamentView::registerRenderHook(PanelsRenderHook::AUTH_LOGIN_FORM_BEFORE, function () {
+            return view('partials.login-popup');
+        });
     }
 }

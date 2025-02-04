@@ -10,6 +10,8 @@ use Filament\Pages;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
+use Filament\Support\Facades\FilamentView;
+use Filament\View\PanelsRenderHook;
 use Filament\Widgets;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
@@ -25,8 +27,9 @@ class PengajarPanelProvider extends PanelProvider
     {
         return $panel
             ->id('pengajar')
+            ->brandName('Sim Obe Pengajar Demo')
+            ->darkMode(false)
             ->path('pengajar')
-            ->brandName('Sim Obe Prodi')
             ->login()  // Menyediakan halaman login khusus untuk Pengajar
             ->colors([
                 'primary' => Color::Amber,
@@ -61,5 +64,12 @@ class PengajarPanelProvider extends PanelProvider
                     ->label('Laporan')
                     ->collapsible(false),
             ]);
+    }
+
+    public function boot()
+    {
+        FilamentView::registerRenderHook(PanelsRenderHook::AUTH_LOGIN_FORM_BEFORE, function () {
+            return view('partials.login-popup');
+        });
     }
 }
