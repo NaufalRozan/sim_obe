@@ -26,6 +26,7 @@ class PengajarPanelProvider extends PanelProvider
     public function panel(Panel $panel): Panel
     {
         return $panel
+        
             ->id('pengajar')
             ->brandName('Sim Obe Pengajar Demo')
             ->darkMode(false)
@@ -36,9 +37,7 @@ class PengajarPanelProvider extends PanelProvider
             ])
             ->discoverResources(in: app_path('Filament/Pengajar/Resources'), for: 'App\\Filament\\Pengajar\\Resources')
             ->discoverPages(in: app_path('Filament/Pengajar/Pages'), for: 'App\\Filament\\Pengajar\\Pages')
-            ->pages([
-                // Pages\Dashboard::class,
-            ])
+            ->pages([])
             ->discoverWidgets(in: app_path('Filament/Pengajar/Widgets'), for: 'App\\Filament\\Pengajar\\Widgets')
             ->widgets([
                 Widgets\AccountWidget::class,

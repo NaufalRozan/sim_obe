@@ -20,11 +20,13 @@ use Illuminate\Session\Middleware\AuthenticateSession;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 
+
 class MahasiswaPanelProvider extends PanelProvider
 {
     public function panel(Panel $panel): Panel
     {
         return $panel
+
             ->id('mahasiswa')
             ->brandName('Sim Obe Mahasiswa Demo')
             ->path('mahasiswa')
@@ -32,6 +34,9 @@ class MahasiswaPanelProvider extends PanelProvider
             ->login()
             ->colors([
                 'primary' => Color::Red,
+            ])
+            ->pages([
+                Pages\Dashboard::class,
             ])
             ->discoverResources(in: app_path('Filament/Mahasiswa/Resources'), for: 'App\\Filament\\Mahasiswa\\Resources')
             ->discoverPages(in: app_path('Filament/Mahasiswa/Pages'), for: 'App\\Filament\\Mahasiswa\\Pages')
@@ -52,6 +57,7 @@ class MahasiswaPanelProvider extends PanelProvider
                 DisableBladeIconComponents::class,
                 DispatchServingFilamentEvent::class,
             ])
+            ->sidebarCollapsibleOnDesktop()
             ->authMiddleware([
                 Authenticate::class,
             ]);
