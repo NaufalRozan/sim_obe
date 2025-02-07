@@ -41,4 +41,8 @@ class Cpl extends Model
     {
         return $this->hasMany(CplHasBk::class, 'cpl_id', 'id');
     }
+    public function pls()
+    {
+        return $this->belongsToMany(Pl::class, 'cpl_pl', 'cpl_id', 'pl_id');
+    }
 }

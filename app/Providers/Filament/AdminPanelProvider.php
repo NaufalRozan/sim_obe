@@ -69,6 +69,9 @@ class AdminPanelProvider extends PanelProvider
                     ->label('BK')
                     ->collapsible(false),
                 NavigationGroup::make()
+                    ->label('Profil Lulusan')
+                    ->collapsible(false),
+                NavigationGroup::make()
                     ->label('CPL')
                     ->collapsible(false),
                 NavigationGroup::make()

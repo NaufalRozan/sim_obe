@@ -38,4 +38,10 @@ class Kurikulum extends Model
     {
         return $this->hasMany(BahanKajian::class, 'kurikulum_id');
     }
+
+
+    public function pls()
+    {
+        return $this->hasMany(Pl::class, 'kurikulum_id');
+    }
 }
