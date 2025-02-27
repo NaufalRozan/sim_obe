@@ -7,9 +7,11 @@ use App\Filament\Resources\CplResource\RelationManagers;
 use App\Filament\Resources\CplResource\RelationManagers\CplIndikatorRelationManager;
 use App\Models\Cpl;
 use App\Models\Kurikulum;
+use App\Models\Pl;
 use App\Models\Prodi;
 use Filament\Forms;
 use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\MultiSelect;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Concerns\InteractsWithForms;
@@ -93,6 +95,19 @@ class CplResource extends Resource
                     Forms\Components\TextInput::make('cpl_ke')
                         ->label('CPL Ke')
                         ->required(),
+                    MultiSelect::make('pls')
+                        ->label('Profil Lulusan')
+                        ->options(function (callable $get) {
+                            $kurikulumId = $get('kurikulum_id');
+                            if ($kurikulumId) {
+                                return Pl::where('kurikulum_id', $kurikulumId)->pluck('kode', 'id'); // Menampilkan kode PL
+                            }
+                            return [];
+                        })
+                        ->relationship('pls', 'kode') // Menyimpan di relasi many-to-many, menampilkan kode
+                        ->preload()
+                        ->searchable(),
+
                     Forms\Components\Textarea::make('deskripsi')
                         ->label('Deskripsi')
                         ->required()
@@ -127,6 +142,13 @@ class CplResource extends Resource
                     ->label('Deskripsi')
                     ->wrap() // Agar teks turun ke baris berikutnya jika terlalu panjang
                     ->extraAttributes(['class' => 'w-96']), // Lebar kolom yang lebih besar untuk deskripsi
+                Tables\Columns\TextColumn::make('pls_kode')
+                    ->label('Profil Lulusan')
+                    ->getStateUsing(function ($record) {
+                        return $record->pls->pluck('kode')->implode(', ');
+                    })
+                    ->sortable()
+                    ->wrap(),
 
             ])
             ->filters([
