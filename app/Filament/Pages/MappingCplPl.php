@@ -9,6 +9,8 @@ use Illuminate\Support\Facades\Auth;
 
 class MappingCplPl extends Page
 {
+    protected static ?int $navigationSort = 1;
+    protected static ?string $navigationGroup = 'Pemetaan';
     protected static ?string $navigationIcon = 'heroicon-o-document-text';
     protected static ?string $navigationLabel = 'Pemetaan CPL dan PL';
 

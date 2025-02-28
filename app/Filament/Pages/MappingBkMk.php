@@ -9,6 +9,8 @@ use Illuminate\Support\Facades\Auth;
 
 class MappingBkMk extends Page
 {
+    protected static ?int $navigationSort = 3;
+    protected static ?string $navigationGroup = 'Pemetaan';
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
     protected static ?string $navigationLabel = 'Pemetaan BK dan MK';
     protected static string $view = 'filament.pages.mapping-bk-mk';

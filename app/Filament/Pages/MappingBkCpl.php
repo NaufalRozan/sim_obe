@@ -10,6 +10,8 @@ use Illuminate\Support\Facades\Auth;
 
 class MappingBkCpl extends Page
 {
+    protected static ?int $navigationSort = 2;
+    protected static ?string $navigationGroup = 'Pemetaan';
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
     protected static ?string $navigationLabel = 'Pemetaan BK dan CPL';
 
