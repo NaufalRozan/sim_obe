@@ -68,10 +68,10 @@ class PenilaianMahasiswa extends Component
             return $mk->cpmks->pluck('kode_cpmk');
         })->unique()->sort()->values()->toArray();
 
-        // Ambil semua CPL unik dari CPMK
+        // Ambil semua CPL unik dari semua MK tanpa duplikasi
         $this->cplList = $this->mks->flatMap(function ($mk) {
             return $mk->cpmks->pluck('cplMk.cpl.nama_cpl')->unique();
-        })->filter()->sort()->values()->toArray();
+        })->filter()->unique()->sort()->values()->toArray();
 
         // Hitung total bobot untuk setiap CPMK
         $this->bobotTotalCpmk = [];
@@ -98,6 +98,21 @@ class PenilaianMahasiswa extends Component
             }
         }
 
+        // ✅ Hitung jumlah CPL dalam MK berdasarkan struktur MK, bukan dari nilai mahasiswa
+        $jumlahCplDalamMk = [];
+        foreach ($this->mks as $mk) {
+            $mkNama = $mk->nama_mk;
+            foreach ($mk->cpmks as $cpmk) {
+                if ($cpmk->cplMk && $cpmk->cplMk->cpl) {
+                    $cplNama = $cpmk->cplMk->cpl->nama_cpl;
+                    if (!isset($jumlahCplDalamMk[$mkNama][$cplNama])) {
+                        $jumlahCplDalamMk[$mkNama][$cplNama] = 0;
+                    }
+                    $jumlahCplDalamMk[$mkNama][$cplNama]++;
+                }
+            }
+        }
+
         // Ambil data mahasiswa berdasarkan angkatan yang dipilih
         $this->mahasiswa = KrsMahasiswa::whereHas('user', function ($query) {
             if ($this->angkatan !== 'Semua Angkatan') {
@@ -110,55 +125,71 @@ class PenilaianMahasiswa extends Component
             ->with(['user', 'cpmkMahasiswa.cpmk.cplMk.cpl'])
             ->get()
             ->groupBy('user.id')
-            ->map(function ($grouped) {
+            ->map(function ($grouped) use ($jumlahCplDalamMk) {
                 $firstEntry = $grouped->first();
                 $nilaiCpmk = [];
                 $nilaiCpl = [];
                 $nilaiCplTidakFull = [];
                 $nilaiMk = [];
 
+                $cplPerMk = [];
+
                 foreach ($grouped as $mhs) {
-                    $cplPerMk = [];
-
                     foreach ($mhs->cpmkMahasiswa as $nilai) {
-                        if ($nilai->cpmk && $nilai->cpmk->bobot && $nilai->cpmk->cplMk && $nilai->cpmk->cplMk->cpl) {
-                            $mkNama = $nilai->cpmk->mk->nama_mk;
-                            $cpmkKode = strtoupper(trim($nilai->cpmk->kode_cpmk));
-                            $cplNama = $nilai->cpmk->cplMk->cpl->nama_cpl;
-                            $bobot = $nilai->cpmk->bobot;
-                            $nilaiAkhir = ($nilai->nilai * $bobot) / 100;
+                        if (!$nilai->cpmk || !$nilai->cpmk->cplMk || !$nilai->cpmk->cplMk->cpl) continue;
 
-                            // Simpan nilai CPMK
-                            $nilaiCpmk[$mkNama][$cpmkKode] = $nilaiAkhir;
+                        $mkNama = $nilai->cpmk->mk->nama_mk;
+                        $cpmkKode = strtoupper(trim($nilai->cpmk->kode_cpmk));
+                        $cplNama = $nilai->cpmk->cplMk->cpl->nama_cpl;
+                        $bobot = $nilai->cpmk->bobot;
+                        $nilaiAkhir = $nilai->nilai !== null ? ($nilai->nilai * $bobot) / 100 : null;
 
-                            // Simpan nilai CPL berdasarkan CPMK yang terkait
-                            if (!isset($nilaiCpl[$cplNama])) {
-                                $nilaiCpl[$cplNama] = 0;
-                            }
-                            $nilaiCpl[$cplNama] += $nilaiAkhir;
+                        // Simpan nilai CPMK
+                        $nilaiCpmk[$mkNama][$cpmkKode] = $nilaiAkhir;
 
-                            // Simpan nilai MK
-                            if (!isset($nilaiMk[$mkNama])) {
-                                $nilaiMk[$mkNama] = 0;
-                            }
-                            $nilaiMk[$mkNama] += $nilaiAkhir;
-
-                            // Kelompokkan CPL berdasarkan MK
-                            $cplPerMk[$mkNama][$cplNama][] = $nilaiAkhir;
+                        // Simpan nilai CPL total (hanya yang ada nilai)
+                        if (!isset($nilaiCpl[$cplNama])) {
+                            $nilaiCpl[$cplNama] = 0;
                         }
+                        $nilaiCpl[$cplNama] += $nilaiAkhir ?? 0;
+
+                        // Simpan nilai MK
+                        if (!isset($nilaiMk[$mkNama])) {
+                            $nilaiMk[$mkNama] = 0;
+                        }
+                        $nilaiMk[$mkNama] += $nilaiAkhir ?? 0;
+
+                        // Simpan nilai untuk CPL Tidak Full
+                        if (!isset($cplPerMk[$mkNama][$cplNama])) {
+                            $cplPerMk[$mkNama][$cplNama] = [];
+                        }
+                        $cplPerMk[$mkNama][$cplNama][] = $nilaiAkhir;
                     }
+                }
 
-                    // Hitung "Capaian CPL Tidak Full"
-                    foreach ($cplPerMk as $mkNama => $cpls) {
-                        foreach ($cpls as $cplNama => $nilaiCpmks) {
-                            $jumlahCpmkDalamMk = count($nilaiCpmks);
-                            $nilaiPerCpmk = array_sum($nilaiCpmks) / $jumlahCpmkDalamMk;
+                // ✅ Perhitungan Capaian CPL Tidak Full
+                foreach ($jumlahCplDalamMk as $mkNama => $cpls) {
+                    foreach ($cpls as $cplNama => $jumlahCplSamaDalamMk) {
+                        $nilaiCpmks = $cplPerMk[$mkNama][$cplNama] ?? [];
+                        $nilaiTotal = 0;
+                        $hasKosong = false;
 
-                            if (!isset($nilaiCplTidakFull[$cplNama])) {
-                                $nilaiCplTidakFull[$cplNama] = 0;
+                        // hitung total nilai, tandai jika ada yg null
+                        for ($i = 0; $i < $jumlahCplSamaDalamMk; $i++) {
+                            if (!isset($nilaiCpmks[$i]) || $nilaiCpmks[$i] === null) {
+                                $hasKosong = true;
+                            } else {
+                                $nilaiTotal += $nilaiCpmks[$i];
                             }
-                            $nilaiCplTidakFull[$cplNama] += $nilaiPerCpmk;
                         }
+
+                        // jika ada kosong, bagi dengan jumlah CPL (bukan jumlah nilai yang ada)
+                        $nilaiPerCpl = $hasKosong ? ($nilaiTotal / $jumlahCplSamaDalamMk) : $nilaiTotal;
+
+                        if (!isset($nilaiCplTidakFull[$cplNama])) {
+                            $nilaiCplTidakFull[$cplNama] = 0;
+                        }
+                        $nilaiCplTidakFull[$cplNama] += $nilaiPerCpl;
                     }
                 }
 
@@ -169,8 +200,9 @@ class PenilaianMahasiswa extends Component
                     'nilai_cpl_tidak_full' => $nilaiCplTidakFull,
                     'nilai_mk' => $nilaiMk,
                 ];
-            })->values();
+            });
     }
+
 
 
     public function render()

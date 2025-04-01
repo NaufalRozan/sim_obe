@@ -28,6 +28,7 @@
                             {{ $mk->kode }}</th>
                     @endforeach
 
+                    <!-- Pastikan CPL hanya muncul sekali -->
                     @foreach ($cplList as $cpl)
                         <th rowspan="3" class="px-4 py-2 border border-black text-center">Nilai {{ $cpl }}
                         </th>
@@ -36,10 +37,9 @@
                         <th rowspan="3" class="px-4 py-2 border border-black text-center">Capaian {{ $cpl }}
                             Tidak Full</th>
                     @endforeach
-
                 </tr>
 
-                <!-- Baris kedua: CPL -->
+                <!-- Baris kedua: CPMK -->
                 <tr class="border-b border-black bg-gray-100">
                     @foreach ($mks as $mk)
                         @foreach ($mk->cpmks as $cpmk)
@@ -63,6 +63,7 @@
                     @endforeach
                 </tr>
             </thead>
+
 
 
 
@@ -126,15 +127,17 @@
 
                         @foreach ($cplList as $cpl)
                             <td class="px-4 py-2 border border-black text-center">
-                                {{ number_format($mhs['nilai_cpl'][$cpl] ?? 0,) }}
+                                {{ number_format($mhs['nilai_cpl'][$cpl] ?? 0, 2) }}
                             </td>
                             <td class="px-4 py-2 border border-black text-center">
                                 {{ round((($mhs['nilai_cpl'][$cpl] ?? 0) / ($bobotTotalCpl[$cpl] ?? 1)) * 100, 2) }}%
                             </td>
+
                             <td class="px-4 py-2 border border-black text-center">
                                 {{ round((($mhs['nilai_cpl_tidak_full'][$cpl] ?? 0) / ($bobotTotalCpl[$cpl] ?? 1)) * 100, 2) }}%
                             </td>
                         @endforeach
+
 
                     </tr>
                 @endforeach
