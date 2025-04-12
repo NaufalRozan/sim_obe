@@ -6,16 +6,16 @@
             <table class="w-full border border-gray-300 bg-white text-sm text-left">
                 <thead class="bg-gray-100">
                     <tr class="border-b border-gray-300">
-                        <th class="px-4 py-2 border border-gray-300 text-center">CPL</th>
+                        <th class="px-4 py-2 border border-gray-300 text-center bg-gray-200">Kode MK</th>
                         @foreach ($cpls as $cpl)
-                            <th class="px-4 py-2 border border-gray-300 text-center">{{ $cpl->nama_cpl }}</th>
+                            <th class="px-4 py-2 border border-gray-300 text-center bg-gray-200">{{ $cpl->nama_cpl }}</th>
                         @endforeach
                     </tr>
                 </thead>
                 <tbody>
                     @foreach ($mks as $mk)
                         <tr class="border-b border-gray-300">
-                            <td class="px-4 py-2 border border-gray-300 font-bold align-top text-center">
+                            <td class="px-4 py-2 border border-gray-300 font-bold text-center">
                                 {{ $mk->kode }}
                             </td>
                             @foreach ($cpls as $cpl)
@@ -25,6 +25,8 @@
                                     @endphp
                                     @if ($cpmks->isNotEmpty())
                                         {{ $cpmks->pluck('kode_cpmk')->join(', ') }}
+                                    @else
+                                        -
                                     @endif
                                 </td>
                             @endforeach

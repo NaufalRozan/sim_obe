@@ -107,11 +107,11 @@
                 </tr>
 
                 <!-- Row untuk Mahasiswa -->
-                @foreach ($mahasiswa as $index => $mhs)
+                @php $no = 1; @endphp
+                @foreach ($mahasiswa as $mhs)
                     <tr class="border-b border-black">
-                        <td class="px-4 py-2 border border-black text-center">{{ $index + 1 }}</td>
+                        <td class="px-4 py-2 border border-black text-center">{{ $no++ }}</td>
                         <td class="px-4 py-2 border border-black text-center">{{ $mhs['nama'] }}</td>
-
                         @foreach ($mks as $mk)
                             @foreach ($mk->cpmks as $cpmk)
                                 <td class="px-4 py-2 border border-black text-center">
