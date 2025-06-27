@@ -140,7 +140,7 @@
                 <p><a href="https://obe.jogjacode.id/mahasiswa/" target="_blank">obe.jogjacode.id/mahasiswa/</a></p>
                 <ul>
                     <li>Email: <strong>mahasiswa@demo.com</strong></li>
-                    <li>Password: <strong>pengajar1234</strong></li>
+                    <li>Password: <strong>mahasiswa1234</strong></li>
                 </ul>
             </div>
 
