@@ -5,7 +5,6 @@ namespace App\Filament\Pengajar\Resources\CpmkMahasiswaResource\Pages;
 use App\Exports\CpmkMahasiswaTemplateExport;
 use App\Filament\Pengajar\Resources\CpmkMahasiswaResource;
 use App\Imports\CpmkMahasiswaImport;
-use App\Models\CpmkMahasiswa;
 use App\Models\MkDitawarkan;
 use Filament\Actions;
 use Filament\Resources\Pages\ListRecords;
@@ -22,16 +21,14 @@ class ListCpmkMahasiswas extends ListRecords
             Actions\Action::make('download_excel')
                 ->label('Download Template Nilai')
                 ->icon('heroicon-o-arrow-down-circle')
-                ->color('success') // Ubah ke huruf kecil
+                ->color('success')
                 ->action(function () {
-                    $mkDitawarkanId = request('mk_ditawarkan_id') ?? session('mk_ditawarkan_id'); // Ambil dari request atau session
+                    $mkDitawarkanId = request('mk_ditawarkan_id') ?? session('mk_ditawarkan_id');
+
                     if ($mkDitawarkanId) {
-                        // Ambil nama MK Ditawarkan
                         $mkDitawarkan = MkDitawarkan::find($mkDitawarkanId);
                         $namaMk = $mkDitawarkan ? $mkDitawarkan->mk->nama_mk : 'template_cpmk';
                         $kelas = $mkDitawarkan ? $mkDitawarkan->kelas : 'Kelas';
-
-                        // Ganti karakter yang tidak valid di nama file dengan underscore
                         $namaFile = str_replace(['/', '\\', ':', '*', '?', '"', '<', '>', '|'], '_', "{$namaMk} - {$kelas}.xlsx");
 
                         return Excel::download(
@@ -58,20 +55,26 @@ class ListCpmkMahasiswas extends ListRecords
 
     public function save()
     {
-        // Validasi bahwa file diunggah
         if ($this->file) {
             try {
-                // Impor data dari file
-                Excel::import(new CpmkMahasiswaImport(), $this->file->getRealPath());
+                $mkDitawarkanId = request('mk_ditawarkan_id') ?? session('mk_ditawarkan_id');
 
-                // Notifikasi berhasil
+                if (!$mkDitawarkanId) {
+                    \Filament\Notifications\Notification::make()
+                        ->title('MK Ditawarkan tidak ditemukan')
+                        ->warning()
+                        ->send();
+                    return;
+                }
+
+                Excel::import(new CpmkMahasiswaImport($mkDitawarkanId), $this->file);
+
                 \Filament\Notifications\Notification::make()
                     ->title('Berhasil')
                     ->body('Nilai CPMK berhasil diunggah.')
                     ->success()
                     ->send();
             } catch (\Exception $e) {
-                // Tangani error
                 \Filament\Notifications\Notification::make()
                     ->title('Gagal')
                     ->body('Terjadi kesalahan saat mengunggah file: ' . $e->getMessage())

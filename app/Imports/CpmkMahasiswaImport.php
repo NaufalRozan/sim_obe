@@ -6,93 +6,83 @@ use App\Models\Cpmk;
 use App\Models\CpmkMahasiswa;
 use App\Models\KrsMahasiswa;
 use App\Models\User;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\File;
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 
 class CpmkMahasiswaImport implements ToModel, WithHeadingRow
 {
     protected $cpmks;
+    protected $mkDitawarkanId;
 
-    public function __construct()
+    public function __construct($mkDitawarkanId)
     {
-        $mkDitawarkanId = request('mk_ditawarkan_id') ?? session('mk_ditawarkan_id');
+        $this->mkDitawarkanId = $mkDitawarkanId;
 
-        // Load all CPMKs that belong to the selected mk_ditawarkan_id
         $this->cpmks = Cpmk::whereHas('cplMk.mkDitawarkan', function ($query) use ($mkDitawarkanId) {
             $query->where('mk_ditawarkan.id', $mkDitawarkanId);
         })->get()->keyBy('kode_cpmk');
 
-        // Log untuk melihat isi pemetaan
-        Log::info('Pemetaan CPMKs', $this->cpmks->toArray());
+        File::append(storage_path('logs/import_debug.log'), "\n--- MULAI IMPORT ---\n");
+        File::append(storage_path('logs/import_debug.log'), "CPMK Loaded: " . json_encode($this->cpmks->keys()) . "\n");
     }
 
     public function model(array $row)
     {
-        Log::info('Row yang diimpor', $row);
+        $nim = trim($row['nim'] ?? '');
+        File::append(storage_path('logs/import_debug.log'), "Mengecek NIM: {$nim}\n");
 
-        // Find the user by NIM
-        $user = User::where('nim', $row['nim'])->first();
+        // Coba cari user
+        $user = User::where('nim', $nim)->first();
 
+        // Log semua NIM yang tersedia (sekali saja cukup di awal real case)
         if (!$user) {
-            Log::warning('User tidak ditemukan', ['NIM' => $row['nim']]);
-            return null; // Skip if user not found
+            $allNims = User::pluck('nim')->toArray();
+            File::append(storage_path('logs/import_debug.log'), "❌ User tidak ditemukan. Semua NIM yang tersedia: " . implode(', ', $allNims) . "\n");
+            return null;
         }
 
-        // Find the KRS entry for the user related to the MK Ditawarkan
+        File::append(storage_path('logs/import_debug.log'), "✅ User ditemukan: {$user->name} ({$user->id})\n");
+
+        // Cari KRS
         $krsMahasiswa = KrsMahasiswa::where('user_id', $user->id)
-            ->where('mk_ditawarkan_id', request('mk_ditawarkan_id') ?? session('mk_ditawarkan_id'))
+            ->where('mk_ditawarkan_id', $this->mkDitawarkanId)
             ->first();
 
         if (!$krsMahasiswa) {
-            Log::warning('KRS Mahasiswa tidak ditemukan', ['User ID' => $user->id]);
-            return null; // Skip if KRS not found
+            File::append(storage_path('logs/import_debug.log'), "❌ KRS tidak ditemukan untuk user ID: {$user->id}\n");
+            return null;
         }
 
-        // Loop through each CPMK score in the row
+        File::append(storage_path('logs/import_debug.log'), "✅ KRS ditemukan ID: {$krsMahasiswa->id}\n");
+
+        // Loop nilai CPMK
         foreach ($row as $key => $value) {
-            // Skip 'nama_mahasiswa' and 'nim' columns
-            if (in_array($key, ['nama_mahasiswa', 'nim']) || $value === null) {
+            if (in_array($key, ['nama_mahasiswa', 'nim']) || $value === null) continue;
+
+            $kodeCpmk = strtoupper(str_replace('_', ' ', $key));
+            $kodeCpmk = str_replace('CPMK ', 'CPMK - ', $kodeCpmk);
+
+            $cpmk = $this->cpmks->get($kodeCpmk);
+
+            if (!$cpmk) {
+                File::append(storage_path('logs/import_debug.log'), "❌ CPMK tidak ditemukan: {$kodeCpmk}\n");
                 continue;
             }
 
-            // Convert Excel column format (cpmk_1) to match CPMK code (CPMK - 1)
-            $kodeCpmk = strtoupper(str_replace('_', ' ', $key)); // Mengubah 'cpmk_1' menjadi 'CPMK 1'
-            $kodeCpmk = str_replace('CPMK ', 'CPMK - ', $kodeCpmk); // Mengubah 'CPMK 1' menjadi 'CPMK - 1'
+            $result = CpmkMahasiswa::updateOrCreate(
+                [
+                    'cpmk_id' => $cpmk->id,
+                    'krs_mahasiswa_id' => $krsMahasiswa->id,
+                ],
+                [
+                    'nilai' => $value,
+                ]
+            );
 
-            // Tambahkan log untuk memantau kolom 'cpmk_1' secara khusus
-            if ($key === 'cpmk_1') {
-                Log::info('Proses CPMK 1', ['Key' => $key, 'Mapped Code' => $kodeCpmk, 'Value' => $value]);
-            }
-
-            // Find the corresponding CPMK by its code and mk_ditawarkan_id
-            $cpmk = $this->cpmks->get($kodeCpmk);
-
-            if ($cpmk) {
-                // Update or create the CPMK Mahasiswa entry
-                $result = CpmkMahasiswa::updateOrCreate(
-                    [
-                        'cpmk_id' => $cpmk->id,
-                        'krs_mahasiswa_id' => $krsMahasiswa->id,
-                    ],
-                    [
-                        'nilai' => $value,
-                    ]
-                );
-
-                // Log hasil penyimpanan data
-                Log::info('Hasil UpdateOrCreate', [
-                    'CPMK ID' => $cpmk->id,
-                    'KRS Mahasiswa ID' => $krsMahasiswa->id,
-                    'Nilai' => $value,
-                    'Result' => $result->wasRecentlyCreated ? 'Created' : 'Updated',
-                ]);
-            } else {
-                Log::warning('CPMK tidak ditemukan untuk kolom', ['Kolom' => $key, 'Kode CPMK Pemetaan' => $kodeCpmk]);
-            }
+            File::append(storage_path('logs/import_debug.log'), "✅ CPMK {$kodeCpmk} untuk {$nim} disimpan: {$value} → " . ($result->wasRecentlyCreated ? "CREATED" : "UPDATED") . "\n");
         }
 
-        // Return null because no new model instance is needed
         return null;
     }
 }
